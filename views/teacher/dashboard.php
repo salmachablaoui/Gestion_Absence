@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 require_once "../../models/XmlManager.php";
 
@@ -33,11 +32,20 @@ if (!$teacherData) {
 $teacherClass = (string)$teacherData->class ?? "";
 $teacherModule = (string)$teacherData->module ?? "";
 
-// Récupérer les étudiants de la classe de l’enseignant
+// Récupérer les étudiants de la classe
 $students = [];
 foreach ($studentsXml->getAll()->student as $s) {
     if ((string)$s->class === $teacherClass) {
         $students[] = $s;
+    }
+}
+
+// Récupérer les absences du jour
+$today = date("Y-m-d");
+$absences = [];
+foreach ($absencesXml->getAll()->absence as $a) {
+    if ((string)$a->date === $today) {
+        $absences[(string)$a->studentId] = $a;
     }
 }
 ?>
@@ -48,6 +56,12 @@ foreach ($studentsXml->getAll()->student as $s) {
     <meta charset="UTF-8">
     <title>Dashboard Enseignant</title>
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        .btn { padding: 5px 10px; text-decoration: none; border: 1px solid #333; border-radius: 4px; }
+        .btn.disabled { opacity: 0.5; pointer-events: none; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    </style>
 </head>
 <body>
 
@@ -69,35 +83,37 @@ foreach ($studentsXml->getAll()->student as $s) {
             <th>Email</th>
             <th>Présence</th>
             <th>Absence</th>
+            <th>Actions</th>
         </tr>
+
         <?php if ($students): ?>
             <?php foreach ($students as $student): ?>
                 <?php
-                // Vérifier si l’étudiant est déjà absent aujourd'hui
-                $today = date("Y-m-d");
-                $absent = false;
-                foreach ($absencesXml->getAll()->absence as $a) {
-                    if ((string)$a['student_id'] === (string)$student['id'] && (string)$a['date'] === $today) {
-                        $absent = true;
-                        break;
-                    }
-                }
+                $studentId = (string)$student['id'];
+                $absent = isset($absences[$studentId]);
                 ?>
                 <tr>
-                    <td><?= htmlspecialchars($student['id']) ?></td>
+                    <td><?= htmlspecialchars($studentId) ?></td>
                     <td><?= htmlspecialchars($student->name) ?></td>
                     <td><?= htmlspecialchars($student->email) ?></td>
                     <td>
-                        <a href="mark_presence.php?id=<?= $student['id'] ?>&class=<?= urlencode($teacherClass) ?>" class="btn">✔ Présent</a>
+                        <a href="mark_presence.php?id=<?= $studentId ?>&class=<?= urlencode($teacherClass) ?>" class="btn <?= $absent ? 'disabled' : '' ?>" <?= $absent ? 'onclick="return false;"' : '' ?>>✔ Présent</a>
                     </td>
                     <td>
-                        <a href="mark_absence.php?id=<?= $student['id'] ?>&class=<?= urlencode($teacherClass) ?>" class="btn <?= $absent ? 'disabled' : '' ?>"
-                           <?= $absent ? 'onclick="return false;"' : '' ?>>❌ Absence</a>
+                        <a href="mark_absence.php?id=<?= $studentId ?>&module=<?= urlencode($teacherModule) ?>" class="btn <?= $absent ? 'disabled' : '' ?>" <?= $absent ? 'onclick="return false;"' : '' ?>>❌ Absence</a>
+                    </td>
+                    <td>
+                        <?php if ($absent): ?>
+                            <a href="edit_absence_form.php?id=<?= $absences[$studentId]['id'] ?>" class="btn">✏️ Modifier</a>
+                            <a href="delete_absence.php?id=<?= $absences[$studentId]['id'] ?>" class="btn" onclick="return confirm('Supprimer cette absence ?')">🗑️ Supprimer</a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="5" style="text-align:center;">Aucun étudiant dans votre classe</td></tr>
+            <tr><td colspan="6" style="text-align:center;">Aucun étudiant dans votre classe</td></tr>
         <?php endif; ?>
     </table>
 </div>
