@@ -1,0 +1,245 @@
+/* ==================== Reset ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f6fa;
+    color: #333;
+}
+
+/* ==================== Container ==================== */
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* ==================== Header ==================== */
+h1 {
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-size: 32px;
+    text-align: center;
+}
+
+/* ==================== Actions / boutons ==================== */
+a.edit {
+    color: #2ecc71;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 5px;
+    transition: background 0.2s, color 0.2s;
+}
+
+a.edit:hover {
+    background: #2ecc71;
+    color: #fff;
+}
+
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.btn {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.btn.logout {
+    background: #e74c3c;
+}
+
+.btn.logout:hover {
+    background: #c0392b;
+}
+
+/* ==================== Section titres ==================== */
+h2 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #34495e;
+    border-left: 5px solid #3498db;
+    padding-left: 10px;
+}
+
+/* ==================== Tableaux modernes ==================== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    margin-bottom: 50px;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+}
+
+th {
+    background: #3498db;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+tr:nth-child(even) {
+    background: #f4f6f9;
+}
+
+tr:hover {
+    background: #eaf1fb;
+}
+
+a.delete {
+    color: #e74c3c;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.2s, color 0.2s;
+}
+
+a.delete:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
+a.edit {
+    color: #2ecc71;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.2s, color 0.2s;
+}
+
+a.edit:hover {
+    background: #2ecc71;
+    color: #fff;
+}
+
+/* ==================== Responsive ==================== */
+@media (max-width: 768px) {
+    .actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    table, th, td {
+        font-size: 14px;
+    }
+}
+
+
+/* ==================== Modal Améliorée ==================== */
+.modal {
+    display: none; /* masquée par défaut */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6); /* overlay plus sombre */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto; /* centré verticalement */
+    padding: 40px 30px;
+    border-radius: 15px;
+    width: 500px; /* plus large */
+    max-width: 90%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 25px;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="email"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 8px 0 20px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content input[type="email"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52,152,219,0.5);
+    outline: none;
+}
+
+.modal-content .btn {
+    width: 48%;
+    padding: 12px;
+    margin: 5px 1%;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #e74c3c;
+}
+/* Conteneur des boutons du modal */
+.modal-content .form-buttons {
+    display: flex;
+    justify-content: space-between; /* espace entre les deux boutons */
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-content .form-buttons .btn {
+    flex: 1; /* les boutons prennent la même largeur */
+    text-align: center;
+}
+
+

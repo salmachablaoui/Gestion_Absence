@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+    <user id="1" role="admin">
+        <name>Admin</name>
+        <email>admin@univ.com</email>
+        <password>admin123</password>
+    </user>
+
+    
+
+    <user id="3" role="student">
+        <name>Etudiant Salma</name>
+        <email>student@univ.com</email>
+        <password>student123</password>
+    </user>
+<user id="u69665f47b1aa3" role="student"><email>oumaima6@gmail.com</email><password>student123</password><name>oumaima mouain</name></user><user id="u69666dc6d49e5" role="student"><email>salmachablaoui6@gmail.com</email><password>students123</password></user><user id="u696677031ab06" role="teacher"><email>Ibtisamlk2005@gmail.com</email><password>123</password></user><user id="u696685ad14b39" role="student"><email>khaoula@gmail.com</email><password>students123</password></user></users>

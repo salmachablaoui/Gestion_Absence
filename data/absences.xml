@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<absences>
+    <absence id="1">
+        <studentId>1</studentId>
+        <module>Mathématiques</module>
+        <date>2026-01-13</date>
+        <status>absent</status>
+        <hours>2</hours>
+    </absence>
+    <absence id="2">
+        <studentId>2</studentId>
+        <module>Mathématiques</module>
+        <date>2026-01-13</date>
+        <status>present</status>
+        <hours>2</hours>
+    </absence>
+</absences>

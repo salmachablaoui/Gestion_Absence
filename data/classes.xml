@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classes>
+    <class id="GI1">
+        <name>Génie Informatique 1</name>
+        <modules>
+            <module>Mathématiques</module>
+            <module>Algorithmique</module>
+        </modules>
+    </class>
+    <class id="GI2">
+        <name>Génie Informatique 2</name>
+        <modules>
+            <module>Base de données</module>
+            <module>Java</module>
+        </modules>
+    </class>
+</classes>
