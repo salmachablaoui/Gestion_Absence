@@ -14,4 +14,4 @@
         <status>present</status>
         <hours>2</hours>
     </absence>
-</absences>
+<absence id="a6966b8773881e"><studentId>u69665f47b1aa3</studentId><module>Algorithmique</module><date>2026-01-13</date><status>Présent</status><hours>4</hours><teacherId>u6966b377b822d</teacherId></absence><absence id="a6966b8a15f88c"><studentId>u69666dc6d49e5</studentId><module>Algorithmique</module><date>2026-01-13</date><status>Présent</status><hours>1</hours><teacherId>u6966b377b822d</teacherId></absence></absences>

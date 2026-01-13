@@ -2,6 +2,7 @@
 session_start();
 require_once "../../models/XmlManager.php";
 
+// Vérifier que l'utilisateur est enseignant
 if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "teacher") {
     header("Location: ../../login.php");
     exit;
@@ -12,10 +13,10 @@ $teachersXml = new XmlManager(__DIR__ . "/../../data/teachers.xml");
 $studentsXml = new XmlManager(__DIR__ . "/../../data/students.xml");
 $absencesXml = new XmlManager(__DIR__ . "/../../data/absences.xml");
 
+// Enseignant connecté
 $teacherEmail = $_SESSION["user"]["email"];
-
-// Récupérer l'enseignant connecté
 $teacherData = null;
+
 foreach ($teachersXml->getAll()->teacher as $t) {
     if ((string)$t->email === $teacherEmail) {
         $teacherData = $t;
@@ -24,15 +25,14 @@ foreach ($teachersXml->getAll()->teacher as $t) {
 }
 
 if (!$teacherData) {
-    echo "Enseignant non trouvé";
-    exit;
+    die("Enseignant non trouvé");
 }
 
-// Classe et module
+// Classe et module de l'enseignant
 $teacherClass = (string)$teacherData->class ?? "";
 $teacherModule = (string)$teacherData->module ?? "";
 
-// Récupérer les étudiants de la classe
+// Étudiants de la classe
 $students = [];
 foreach ($studentsXml->getAll()->student as $s) {
     if ((string)$s->class === $teacherClass) {
@@ -40,7 +40,7 @@ foreach ($studentsXml->getAll()->student as $s) {
     }
 }
 
-// Récupérer les absences du jour
+// Absences du jour
 $today = date("Y-m-d");
 $absences = [];
 foreach ($absencesXml->getAll()->absence as $a) {
@@ -91,21 +91,24 @@ foreach ($absencesXml->getAll()->absence as $a) {
                 <?php
                 $studentId = (string)$student['id'];
                 $absent = isset($absences[$studentId]);
+                $absenceId = $absent ? (string)$absences[$studentId]['id'] : null;
                 ?>
                 <tr>
                     <td><?= htmlspecialchars($studentId) ?></td>
                     <td><?= htmlspecialchars($student->name) ?></td>
                     <td><?= htmlspecialchars($student->email) ?></td>
                     <td>
-                        <a href="mark_presence.php?id=<?= $studentId ?>&class=<?= urlencode($teacherClass) ?>" class="btn <?= $absent ? 'disabled' : '' ?>" <?= $absent ? 'onclick="return false;"' : '' ?>>✔ Présent</a>
+                        <a href="add_presence.php?id=<?= $studentId ?>&class=<?= urlencode($teacherClass) ?>"
+                           class="btn <?= $absent ? 'disabled' : '' ?>" <?= $absent ? 'onclick="return false;"' : '' ?>>✔ Présent</a>
                     </td>
                     <td>
-                        <a href="mark_absence.php?id=<?= $studentId ?>&module=<?= urlencode($teacherModule) ?>" class="btn <?= $absent ? 'disabled' : '' ?>" <?= $absent ? 'onclick="return false;"' : '' ?>>❌ Absence</a>
+                        <a href="add_absence.php?id=<?= $studentId ?>&module=<?= urlencode($teacherModule) ?>"
+                           class="btn <?= $absent ? 'disabled' : '' ?>" <?= $absent ? 'onclick="return false;"' : '' ?>>❌ Absence</a>
                     </td>
                     <td>
                         <?php if ($absent): ?>
-                            <a href="edit_absence_form.php?id=<?= $absences[$studentId]['id'] ?>" class="btn">✏️ Modifier</a>
-                            <a href="delete_absence.php?id=<?= $absences[$studentId]['id'] ?>" class="btn" onclick="return confirm('Supprimer cette absence ?')">🗑️ Supprimer</a>
+                            <a href="edit_absence.php?id=<?= $absenceId ?>" class="btn">✏️ Modifier</a>
+                            <a href="delete_absence.php?id=<?= $absenceId ?>" class="btn" onclick="return confirm('Supprimer cette absence ?')">🗑️ Supprimer</a>
                         <?php else: ?>
                             -
                         <?php endif; ?>

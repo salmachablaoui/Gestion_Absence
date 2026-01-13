@@ -32,7 +32,7 @@ if (!$studentData) {
 $studentId = (string)$studentData['id'];
 $absences = [];
 foreach ($absencesXml->getAll()->absence as $a) {
-    if ((string)$a['student_id'] === $studentId) {
+    if ((string)$a->studentId === $studentId) {  // <-- corrigé ici
         $absences[] = $a;
     }
 }
