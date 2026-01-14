@@ -2,124 +2,134 @@
 session_start();
 require_once "../../models/XmlManager.php";
 
-// Vérifier que l'utilisateur est enseignant
+// Vérifier l'enseignant
 if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "teacher") {
     header("Location: ../../login.php");
     exit;
 }
 
-// XML
-$teachersXml = new XmlManager(__DIR__ . "/../../data/teachers.xml");
+$teacherId = $_SESSION["user"]["id"];
+
 $studentsXml = new XmlManager(__DIR__ . "/../../data/students.xml");
+$students = $studentsXml->getAll()->student ?? [];
+
+$seancesXml = new XmlManager(__DIR__ . "/../../data/seances.xml");
+$seances = $seancesXml->getAll()->seance ?? [];
+
+$classesXml = new XmlManager(__DIR__ . "/../../data/classes.xml");
+$classes = $classesXml->getAll()->class ?? [];
+
 $absencesXml = new XmlManager(__DIR__ . "/../../data/absences.xml");
-
-// Enseignant connecté
-$teacherEmail = $_SESSION["user"]["email"];
-$teacherData = null;
-
-foreach ($teachersXml->getAll()->teacher as $t) {
-    if ((string)$t->email === $teacherEmail) {
-        $teacherData = $t;
-        break;
-    }
-}
-
-if (!$teacherData) {
-    die("Enseignant non trouvé");
-}
-
-// Classe et module de l'enseignant
-$teacherClass = (string)$teacherData->class ?? "";
-$teacherModule = (string)$teacherData->module ?? "";
-
-// Étudiants de la classe
-$students = [];
-foreach ($studentsXml->getAll()->student as $s) {
-    if ((string)$s->class === $teacherClass) {
-        $students[] = $s;
-    }
-}
-
-// Absences du jour
-$today = date("Y-m-d");
-$absences = [];
-foreach ($absencesXml->getAll()->absence as $a) {
-    if ((string)$a->date === $today) {
-        $absences[(string)$a->studentId] = $a;
-    }
-}
+$absences = $absencesXml->getAll()->absence ?? [];
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Dashboard Enseignant</title>
     <link rel="stylesheet" href="../../assets/css/style.css">
-    <style>
-        .btn { padding: 5px 10px; text-decoration: none; border: 1px solid #333; border-radius: 4px; }
-        .btn.disabled { opacity: 0.5; pointer-events: none; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📚 Dashboard Enseignant</h1>
+<h1>👨‍🏫 Dashboard Enseignant</h1>
 
-    <div class="actions">
-        <span>Bienvenue, <?= htmlspecialchars($teacherData->name) ?></span>
-        <a href="../../logout.php" class="btn logout">🔒 Déconnexion</a>
-    </div>
-
-    <h2>Classe : <?= htmlspecialchars($teacherClass) ?> | Module : <?= htmlspecialchars($teacherModule) ?></h2>
-
-    <h3>Liste des étudiants</h3>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Présence</th>
-            <th>Absence</th>
-            <th>Actions</th>
-        </tr>
-
-        <?php if ($students): ?>
-            <?php foreach ($students as $student): ?>
-                <?php
-                $studentId = (string)$student['id'];
-                $absent = isset($absences[$studentId]);
-                $absenceId = $absent ? (string)$absences[$studentId]['id'] : null;
-                ?>
-                <tr>
-                    <td><?= htmlspecialchars($studentId) ?></td>
-                    <td><?= htmlspecialchars($student->name) ?></td>
-                    <td><?= htmlspecialchars($student->email) ?></td>
-                    <td>
-                        <a href="add_presence.php?id=<?= $studentId ?>&class=<?= urlencode($teacherClass) ?>"
-                           class="btn <?= $absent ? 'disabled' : '' ?>" <?= $absent ? 'onclick="return false;"' : '' ?>>✔ Présent</a>
-                    </td>
-                    <td>
-                        <a href="add_absence.php?id=<?= $studentId ?>&module=<?= urlencode($teacherModule) ?>"
-                           class="btn <?= $absent ? 'disabled' : '' ?>" <?= $absent ? 'onclick="return false;"' : '' ?>>❌ Absence</a>
-                    </td>
-                    <td>
-                        <?php if ($absent): ?>
-                            <a href="edit_absence.php?id=<?= $absenceId ?>" class="btn">✏️ Modifier</a>
-                            <a href="delete_absence.php?id=<?= $absenceId ?>" class="btn" onclick="return confirm('Supprimer cette absence ?')">🗑️ Supprimer</a>
-                        <?php else: ?>
-                            -
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr><td colspan="6" style="text-align:center;">Aucun étudiant dans votre classe</td></tr>
-        <?php endif; ?>
-    </table>
+<div class="actions">
+    <button id="openAddSeance" class="btn">➕ Créer une séance</button>
+    <a href="../../logout.php" class="btn logout">🔒 Déconnexion</a>
 </div>
+
+<h2>📅 Séances</h2>
+<table>
+<tr>
+    <th>ID</th>
+    <th>Classe</th>
+    <th>Module</th>
+    <th>Date & Heure</th>
+    <th>Actions</th>
+</tr>
+<?php foreach ($seances as $seance): 
+    if ((string)$seance->teacher_id !== $teacherId) continue; // juste les séances du prof
+?>
+<tr>
+    <td><?= $seance['id'] ?></td>
+    <td>
+        <?php
+        // Afficher le nom complet de la classe
+        $className = "-";
+        foreach ($classes as $class) {
+            if ((string)$class['id'] === (string)$seance->class_id) {
+                $className = htmlspecialchars($class->name);
+                break;
+            }
+        }
+        echo $className;
+        ?>
+    </td>
+    <td><?= htmlspecialchars($seance->module) ?></td>
+    <td><?= htmlspecialchars($seance->datetime) ?></td>
+    <td>
+        <button class="btn manageAbsenceBtn" data-seance-id="<?= $seance['id'] ?>">📋 Gérer l'absence</button>
+    </td>
+</tr>
+
+
+  
+<tr class="absenceTableRow" id="absenceTable_<?= $seance['id'] ?>" style="display:none;">
+<td colspan="5">
+<form method="post" action="mark_absence.php">
+<table>
+    <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Absent</th>
+    </tr>
+    <?php
+    foreach ($students as $student) {
+        if ((string)$student->class !== (string)$seance->class_id) continue;
+
+        // Vérifier si absent déjà
+        $isAbsent = false;
+        foreach ($absences as $absence) {
+            if ((string)$absence->studentId === (string)$student['id'] &&
+                (string)$absence->seanceId === (string)$seance['id']) {
+                $isAbsent = true;
+                break;
+            }
+        }
+    ?>
+    <tr>
+        <td><?= htmlspecialchars($student->name) ?></td>
+        <td><?= htmlspecialchars($student->email) ?></td>
+        <td>
+            <input type="checkbox" name="absent_students[]" value="<?= $student['id'] ?>" <?= $isAbsent ? 'checked' : '' ?>>
+            <label>Absent</label>
+        </td>
+    </tr>
+    <?php } ?>
+</table>
+<input type="hidden" name="seance_id" value="<?= $seance['id'] ?>">
+<button type="submit" class="btn">Enregistrer les absences</button>
+</form>
+</td>
+</tr>
+
+
+<?php endforeach; ?>
+</table>
+
+</div>
+
+<script>
+// Ouvrir / fermer tableau absence
+document.querySelectorAll(".manageAbsenceBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const seanceId = btn.dataset.seanceId;
+        const row = document.getElementById("absenceTable_" + seanceId);
+        row.style.display = row.style.display === "none" ? "table-row" : "none";
+    });
+});
+</script>
 
 </body>
 </html>

@@ -11,6 +11,7 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "student") {
 // XML
 $studentsXml = new XmlManager(__DIR__ . "/../../data/students.xml");
 $absencesXml = new XmlManager(__DIR__ . "/../../data/absences.xml");
+$teachersXml = new XmlManager(__DIR__ . "/../../data/teachers.xml");
 
 // Récupérer l'étudiant connecté
 $studentEmail = $_SESSION["user"]["email"];
@@ -32,9 +33,15 @@ if (!$studentData) {
 $studentId = (string)$studentData['id'];
 $absences = [];
 foreach ($absencesXml->getAll()->absence as $a) {
-    if ((string)$a->studentId === $studentId) {  // <-- corrigé ici
+    if ((string)$a->studentId === $studentId) {
         $absences[] = $a;
     }
+}
+
+// Récupérer enseignants dans un tableau associatif id => nom
+$teachers = [];
+foreach ($teachersXml->getAll()->teacher as $t) {
+    $teachers[(string)$t['id']] = (string)$t->name;
 }
 
 // Vérifier pénalité (exemple : plus de 10 absences)
@@ -71,17 +78,21 @@ $penalty = count($absences) >= 10;
     <table>
         <tr>
             <th>Date</th>
+            <th>Heure</th>
             <th>Module</th>
+            <th>Professeur</th>
         </tr>
         <?php if($absences): ?>
             <?php foreach($absences as $a): ?>
                 <tr>
                     <td><?= htmlspecialchars($a->date) ?></td>
-                    <td><?= htmlspecialchars($a->module) ?></td>
+                    <td><?= htmlspecialchars($a->hours ?? '-') ?></td>
+                    <td><?= htmlspecialchars($a->module ?? '-') ?></td>
+                    <td><?= htmlspecialchars($teachers[(string)$a->teacherId] ?? '-') ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="2" style="text-align:center;">Aucune absence enregistrée</td></tr>
+            <tr><td colspan="4" style="text-align:center;">Aucune absence enregistrée</td></tr>
         <?php endif; ?>
     </table>
 </div>
