@@ -1,4 +1,5 @@
 <?php
+// views/student/dashboard.php
 session_start();
 require_once "../../models/XmlManager.php";
 
@@ -8,94 +9,39 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "student") {
     exit;
 }
 
-// XML
-$studentsXml = new XmlManager(__DIR__ . "/../../data/students.xml");
-$absencesXml = new XmlManager(__DIR__ . "/../../data/absences.xml");
-$teachersXml = new XmlManager(__DIR__ . "/../../data/teachers.xml");
-
-// Récupérer l'étudiant connecté
 $studentEmail = $_SESSION["user"]["email"];
-$studentData = null;
 
-foreach ($studentsXml->getAll()->student as $s) {
-    if ((string)$s->email === $studentEmail) {
-        $studentData = $s;
-        break;
-    }
+// Chemin de base
+$basePath = dirname(dirname(dirname(__FILE__)));
+
+// Chemins des fichiers XML
+$studentsXmlPath = $basePath . "/data/students.xml";
+$absencesXmlPath = $basePath . "/data/absences.xml";
+$teachersXmlPath = $basePath . "/data/teachers.xml";
+$xslPath = $basePath . "/xslt/dashboard_student.xsl";
+
+// Vérifier que les fichiers existent
+if (!file_exists($studentsXmlPath) || !file_exists($absencesXmlPath) || !file_exists($teachersXmlPath) || !file_exists($xslPath)) {
+    die("<div style='color:red;padding:20px;'>Fichiers manquants. Contactez l'administrateur.</div>");
 }
 
-if (!$studentData) {
-    echo "Étudiant non trouvé";
-    exit;
-}
+// Charger le XSLT
+$xsl = new DOMDocument();
+$xsl->load($xslPath);
 
-// Récupérer ses absences
-$studentId = (string)$studentData['id'];
-$absences = [];
-foreach ($absencesXml->getAll()->absence as $a) {
-    if ((string)$a->studentId === $studentId) {
-        $absences[] = $a;
-    }
-}
+// Créer un XML simple pour le template
+$xml = new DOMDocument('1.0', 'UTF-8');
+$root = $xml->createElement('dashboard');
+$xml->appendChild($root);
 
-// Récupérer enseignants dans un tableau associatif id => nom
-$teachers = [];
-foreach ($teachersXml->getAll()->teacher as $t) {
-    $teachers[(string)$t['id']] = (string)$t->name;
-}
+// Transformer
+$proc = new XSLTProcessor();
+$proc->importStylesheet($xsl);
 
-// Vérifier pénalité (exemple : plus de 10 absences)
-$penalty = count($absences) >= 10;
-?>
+// Passer les paramètres avec file:/// (trois slashes) pour Windows
+$proc->setParameter('', 'studentEmail', $studentEmail);
+$proc->setParameter('', 'studentsXmlPath', "file:///" . str_replace('\\', '/', $studentsXmlPath));
+$proc->setParameter('', 'absencesXmlPath', "file:///" . str_replace('\\', '/', $absencesXmlPath));
+$proc->setParameter('', 'teachersXmlPath', "file:///" . str_replace('\\', '/', $teachersXmlPath));
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard Étudiant</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
-</head>
-<body>
-
-<div class="container">
-    <h1>🎓 Dashboard Étudiant</h1>
-
-    <div class="actions">
-        <span>Bienvenue, <?= htmlspecialchars($studentData->name) ?></span>
-        <a href="../../logout.php" class="btn logout">🔒 Déconnexion</a>
-    </div>
-
-    <h2>Informations personnelles</h2>
-    <p><strong>Nom :</strong> <?= htmlspecialchars($studentData->name) ?></p>
-    <p><strong>Email :</strong> <?= htmlspecialchars($studentData->email) ?></p>
-    <p><strong>Classe :</strong> <?= htmlspecialchars($studentData->class) ?></p>
-
-    <?php if($penalty): ?>
-        <p style="color:red; font-weight:bold;">⚠️ Attention : Vous avez atteint le nombre maximum d’absences !</p>
-    <?php endif; ?>
-
-    <h2>Mes absences</h2>
-    <table>
-        <tr>
-            <th>Date</th>
-            <th>Heure</th>
-            <th>Module</th>
-            <th>Professeur</th>
-        </tr>
-        <?php if($absences): ?>
-            <?php foreach($absences as $a): ?>
-                <tr>
-                    <td><?= htmlspecialchars($a->date) ?></td>
-                    <td><?= htmlspecialchars($a->hours ?? '-') ?></td>
-                    <td><?= htmlspecialchars($a->module ?? '-') ?></td>
-                    <td><?= htmlspecialchars($teachers[(string)$a->teacherId] ?? '-') ?></td>
-                </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr><td colspan="4" style="text-align:center;">Aucune absence enregistrée</td></tr>
-        <?php endif; ?>
-    </table>
-</div>
-
-</body>
-</html>
+echo $proc->transformToXML($xml);

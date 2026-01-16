@@ -9,23 +9,11 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "admin") {
 
 $studentsXml = new XmlManager(__DIR__ . "/../../../data/students.xml");
 $usersXml    = new XmlManager(__DIR__ . "/../../../data/users.xml");
+$classesXml  = new XmlManager(__DIR__ . "/../../../data/classes.xml");
+$classes = $classesXml->getAll()->class;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-
-    // Sécurité minimale
-    if (
-        empty($_POST["name"]) ||
-        empty($_POST["email"]) ||
-        empty($_POST["class"]) ||
-        empty($_POST["module"]) ||
-        empty($_POST["password"])
-    ) {
-        die("Champs manquants");
-    }
-
     $id = uniqid("u");
-
-    /* 1️⃣ students.xml */
     $student = $studentsXml->getAll()->addChild("student");
     $student->addAttribute("id", $id);
     $student->addChild("name", htmlspecialchars($_POST["name"]));
@@ -34,7 +22,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $student->addChild("module", htmlspecialchars($_POST["module"]));
     $studentsXml->save();
 
-    /* 2️⃣ users.xml */
     $user = $usersXml->getAll()->addChild("user");
     $user->addAttribute("id", $id);
     $user->addAttribute("role", "student");
@@ -46,3 +33,67 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit;
 }
 ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter Étudiant</title>
+</head>
+<body>
+<h2>➕ Ajouter Étudiant</h2>
+<form method="post" action="">
+    <label>Nom :</label>
+    <input type="text" name="name" required><br><br>
+
+    <label>Email :</label>
+    <input type="email" name="email" required><br><br>
+
+    <label>Classe :</label>
+    <select name="class" id="classSelect" required>
+        <option value="">-- Choisir --</option>
+        <?php foreach ($classes as $class): ?>
+            <option value="<?= $class['id'] ?>"><?= htmlspecialchars($class->name) ?></option>
+        <?php endforeach; ?>
+    </select><br><br>
+
+    <label>Module :</label>
+    <select name="module" id="moduleSelect" required>
+        <option value="">-- Choisir --</option>
+    </select><br><br>
+
+    <label>Mot de passe :</label>
+    <input type="password" name="password" required><br><br>
+
+    <button type="submit">Ajouter</button>
+</form>
+
+<script>
+// Créer un mapping classe -> modules depuis le XML PHP
+const classModules = {
+<?php foreach ($classes as $class): ?>
+    "<?= $class['id'] ?>": [
+        <?php 
+        if (isset($class->modules->module)) {
+            foreach ($class->modules->module as $module) {
+                echo '"' . addslashes($module) . '",';
+            }
+        }
+        ?>
+    ],
+<?php endforeach; ?>
+};
+
+// Quand on change la classe, mettre à jour les modules
+document.getElementById("classSelect").addEventListener("change", function() {
+    const moduleSelect = document.getElementById("moduleSelect");
+    moduleSelect.innerHTML = '<option value="">-- Choisir --</option>';
+    (classModules[this.value] || []).forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = m;
+        moduleSelect.appendChild(opt);
+    });
+});
+</script>
+</body>
+</html>
