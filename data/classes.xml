@@ -3,15 +3,24 @@
     <class id="GI1">
         <name>Génie Informatique 1</name>
         <modules>
-            <module>Mathématiques</module>
+            <module>Programmation Web</module>
             <module>Algorithmique</module>
         </modules>
     </class>
+
     <class id="GI2">
         <name>Génie Informatique 2</name>
         <modules>
-            <module>Base de données</module>
-            <module>Java</module>
+            <module>Java Avancé</module>
+            <module>Bases de Données</module>
+        </modules>
+    </class>
+
+    <class id="ISIR">
+        <name>ISIR</name>
+        <modules>
+            <module>XML</module>
+            <module>Réseaux</module>
         </modules>
     </class>
 </classes>

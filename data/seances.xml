@@ -1,2 +1,9 @@
-<?xml version="1.0"?>
-<root><seance id="SE6966c9d154d88"><teacher_id>u696677031ab06</teacher_id><class_id>GI1</class_id><date>2026-01-01</date><module>Python</module></seance><seance id="SE6966cd4a3cfaf"><teacher_id>u696677031ab06</teacher_id><class_id>GI2</class_id><module>Python</module><datetime>2026-01-04T10:30</datetime></seance><seance id="SE69694e1e6e64c"><teacher_id>u696949c9b9eca</teacher_id><class_id>GI2</class_id><module>Base de donn&#xE9;es</module><datetime>2026-01-15T21:29</datetime></seance><seance id="SE69697360bf5e8"><teacher_id>u6966b377b822d</teacher_id><class_id>GI1</class_id><module>Math&#xE9;matiques</module><datetime>2026-01-16T00:08</datetime></seance><seance id="SE6969743ae61b1"><teacher_id>u6966b377b822d</teacher_id><class_id>GI2</class_id><module>Base de donn&#xE9;es</module><datetime>2026-01-17T00:11</datetime></seance><seance id="SE69697bacb23c7"><teacher_id>u696949c9b9eca</teacher_id><class_id>GI2</class_id><module>Java</module><datetime>2026-01-16T00:43</datetime></seance><seance id="SE696980ad1ad83"><teacher_id>u696980957af04</teacher_id><class_id>GI2</class_id><module>Base de donn&#xE9;es</module><datetime>2026-01-16T01:04</datetime></seance><seance id="SE696984229cf98"><teacher_id>u696980957af04</teacher_id><class_id>GI2</class_id><module>Base de donn&#xE9;es</module><datetime>2026-01-16T01:19</datetime></seance></root>
+<?xml version="1.0" encoding="UTF-8"?>
+<seances>
+    <seance id="SE1">
+        <teacher_id>T1</teacher_id>
+        <class_id>GI1</class_id>
+        <datetime>2026-01-14T10:30</datetime>
+        <module>Programmation Web</module>
+    </seance>
+</seances>
