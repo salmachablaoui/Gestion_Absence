@@ -9,7 +9,7 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "teacher") {
 }
 
 $teacherId = $_SESSION["user"]["id"];
-$basePath = "C:/xampp1/htdocs/Gestion_Absence";
+$basePath = "C:/xampp/htdocs/gestion-absences"; // Ajustez selon votre installation
 
 // Chemins
 $seancesXmlPath = $basePath . "/data/seances.xml";
