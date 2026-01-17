@@ -1,70 +1,117 @@
 <?php
-require_once "ObserverInterface.php";
+// observers/AbsenceManager.php
+require_once 'Subject.php';
+require_once 'ObserverInterface.php';
 
-class AbsenceManager
-{
-    private array $observers = [];
-    private string $absencesPath;
-
-    public function __construct()
-    {
-        $this->absencesPath = __DIR__ . '/../data/absences.xml';
-        // Créer le fichier s'il n'existe pas
-        if (!file_exists($this->absencesPath) || filesize($this->absencesPath) === 0) {
-            $xml = new SimpleXMLElement('<?xml version="1.0"?><absences></absences>');
-            $xml->asXML($this->absencesPath);
-        }
+class AbsenceManager implements Subject {
+    private $observers = [];
+    private $absenceData;
+    private $notificationResults = [];
+    
+    public function __construct() {
+        $this->observers = [];
+        $this->notificationResults = [];
     }
-
-    // Ajouter un observateur
-    public function attach(ObserverInterface $observer): void
-    {
+    
+    public function attach(ObserverInterface $observer) {
         $this->observers[] = $observer;
+        error_log("AbsenceManager: Observateur attaché - " . get_class($observer));
     }
-
-    // Notifier tous les observateurs
-    private function notify(string $studentId, string $message): void
-    {
+    
+    public function detach(ObserverInterface $observer) {
+        $key = array_search($observer, $this->observers, true);
+        if ($key !== false) {
+            unset($this->observers[$key]);
+            $this->observers = array_values($this->observers);
+        }
+    }
+    
+    public function notify() {
+        $this->notificationResults = [];
+        
         foreach ($this->observers as $observer) {
-            $observer->update($studentId, $message);
+            try {
+                $result = $observer->update($this->absenceData);
+                $this->notificationResults[] = [
+                    'observer' => get_class($observer),
+                    'result' => $result,
+                    'success' => $result['success'] ?? false
+                ];
+                error_log("AbsenceManager: " . get_class($observer) . " notifié avec succès");
+            } catch (Exception $e) {
+                error_log("AbsenceManager: Erreur avec " . get_class($observer) . " - " . $e->getMessage());
+                $this->notificationResults[] = [
+                    'observer' => get_class($observer),
+                    'error' => $e->getMessage(),
+                    'success' => false
+                ];
+            }
         }
+        
+        return $this->notificationResults;
     }
-
-    // Marquer une absence
-    public function markAbsence(string $studentId, string $seanceId): void
-{
-    $xml = simplexml_load_file($this->absencesPath);
-
-    // Vérifier si l'absence existe déjà pour cet étudiant et cette séance
-    $exists = false;
-    foreach ($xml->absence as $absence) {
-        if ((string)$absence->studentId === $studentId && (string)$absence->seanceId === $seanceId) {
-            $exists = true;
-            break;
+    
+    /**
+     * Marquer une absence et notifier
+     */
+    public function markAbsence($studentId, $seanceId, $teacherId = null, $module = null, $date = null) {
+        // Charger les données de l'étudiant
+        $studentsFile = '../data/students.xml';
+        $students = simplexml_load_file($studentsFile);
+        
+        $studentData = [];
+        foreach ($students->student as $student) {
+            if ((string)$student['id'] === $studentId) {
+                $studentData = [
+                    'id' => $studentId,
+                    'name' => (string)$student->name,
+                    'email' => (string)$student->email,
+                    'class' => (string)$student->class
+                ];
+                break;
+            }
         }
+        
+        // Charger les données de la séance
+        $seancesFile = '../data/seances.xml';
+        $seances = simplexml_load_file($seancesFile);
+        
+        $seanceData = [];
+        foreach ($seances->seance as $seance) {
+            if ((string)$seance['id'] === $seanceId) {
+                $seanceData = [
+                    'id' => $seanceId,
+                    'module' => (string)$seance->module,
+                    'datetime' => (string)$seance->datetime,
+                    'class_id' => (string)$seance->class_id
+                ];
+                break;
+            }
+        }
+        
+        // Préparer les données d'absence
+        $this->absenceData = [
+            'student_id' => $studentId,
+            'student_name' => $studentData['name'] ?? 'Étudiant',
+            'student_email' => $studentData['email'] ?? '',
+            'seance_id' => $seanceId,
+            'seance_module' => $module ?? $seanceData['module'] ?? 'Non spécifié',
+            'seance_datetime' => $date ?? $seanceData['datetime'] ?? date('Y-m-d H:i:s'),
+            'teacher_id' => $teacherId,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'type' => 'absence',
+            'action' => 'marked'
+        ];
+        
+        // Notifier tous les observateurs
+        return $this->notify();
     }
-
-    // Si elle existe déjà, ne rien faire
-    if ($exists) {
-        return;
+    
+    /**
+     * Récupérer les résultats des notifications
+     */
+    public function getNotificationResults() {
+        return $this->notificationResults;
     }
-
-    // Ajouter une nouvelle absence
-    $absence = $xml->addChild('absence');
-    $absence->addAttribute('id', uniqid('a'));
-    $absence->addChild('studentId', $studentId);
-    $absence->addChild('seanceId', $seanceId);
-    $absence->addChild('date', date('Y-m-d'));
-    $absence->addChild('hours', date('H:i'));
-
-    // Sauvegarder le fichier XML
-    $xml->asXML($this->absencesPath);
-
-    // Notifier les observateurs
-    $this->notify(
-        $studentId,
-        "Absence enregistrée pour la séance $seanceId"
-    );
 }
-
-}
+?>

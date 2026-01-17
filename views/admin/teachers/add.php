@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email  = htmlspecialchars($_POST["email"]);
     $class  = htmlspecialchars($_POST["class"]);
     $module = htmlspecialchars($_POST["module"]);
-    $password = $_POST["password"]; // Pour plus de sécurité : password_hash($password, PASSWORD_DEFAULT);
+    $password = $_POST["password"]; // ou password_hash($password, PASSWORD_DEFAULT)
 
     // Ajouter dans teachers.xml
     $teacher = $teachersXml->getAll()->addChild("teacher");
@@ -56,37 +56,64 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Ajouter Enseignant</title>
+    <link rel="stylesheet" href="../../../assets/css/style.css">
 </head>
 <body>
-<h2>➕ Ajouter Enseignant</h2>
 
-<form method="post" action="">
-    <label>Nom :</label>
-    <input type="text" name="name" required><br><br>
+<!-- MODAL -->
+<div class="modal" id="addTeacherModal">
+    <div class="modal-content">
+        <a href="../dashboard.php" class="close" id="closeModal">&times;</a>
+        <h2>➕ Ajouter Enseignant</h2>
 
-    <label>Email :</label>
-    <input type="email" name="email" required><br><br>
+        <form method="post" action="">
+            <label>Nom :</label>
+            <input type="text" name="name" required><br><br>
 
-    <label>Classe :</label>
-    <select name="class" id="classSelect" required>
-        <option value="">-- Choisir --</option>
-        <?php foreach ($classes as $class): ?>
-            <option value="<?= $class['id'] ?>"><?= htmlspecialchars($class->name) ?></option>
-        <?php endforeach; ?>
-    </select><br><br>
+            <label>Email :</label>
+            <input type="email" name="email" required><br><br>
 
-    <label>Module :</label>
-    <select name="module" id="moduleSelect" required>
-        <option value="">-- Choisir --</option>
-    </select><br><br>
+            <label>Classe :</label>
+            <select name="class" id="classSelect" required>
+                <option value="">-- Choisir --</option>
+                <?php foreach ($classes as $class): ?>
+                    <option value="<?= $class['id'] ?>"><?= htmlspecialchars($class->name) ?></option>
+                <?php endforeach; ?>
+            </select><br><br>
 
-    <label>Mot de passe :</label>
-    <input type="password" name="password" required><br><br>
+            <label>Module :</label>
+            <select name="module" id="moduleSelect" required>
+                <option value="">-- Choisir --</option>
+            </select><br><br>
 
-    <button type="submit">Ajouter</button>
-</form>
+            <label>Mot de passe :</label>
+            <input type="password" name="password" required><br><br>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn">Ajouter</button>
+                <a href="../dashboard.php" class="btn logout">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
+// Afficher automatiquement le modal
+document.getElementById("addTeacherModal").style.display = "block";
+
+// Fermer le modal avec la croix
+document.getElementById("closeModal").onclick = function() {
+    window.location.href = "../dashboard.php";
+};
+
+// Fermer en cliquant à l’extérieur
+window.onclick = function(event) {
+    const modal = document.getElementById("addTeacherModal");
+    if (event.target === modal) {
+        window.location.href = "../dashboard.php";
+    }
+};
+
 // Mapping classes -> modules depuis PHP
 const classModules = {
 <?php foreach ($classes as $class): ?>

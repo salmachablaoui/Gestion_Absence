@@ -1,5 +1,7 @@
 <?php
-interface ObserverInterface
-{
-    public function update(string $studentId, string $message): void;
+// observers/ObserverInterface.php
+
+interface ObserverInterface {
+    public function update($absenceData);
 }
+?>

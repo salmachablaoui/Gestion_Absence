@@ -2,6 +2,7 @@
 session_start();
 require_once "../../../models/XmlManager.php";
 
+// Sécurité : admin uniquement
 if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "admin") {
     header("Location: ../../../login.php");
     exit;
@@ -9,13 +10,13 @@ if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "admin") {
 
 // Init XML
 $studentsXml = new XmlManager(__DIR__ . "/../../../data/students.xml");
-$usersXml = new XmlManager(__DIR__ . "/../../../data/users.xml");
+$usersXml    = new XmlManager(__DIR__ . "/../../../data/users.xml");
 
-// SUPPRESSION si id passé
+// 🗑 Suppression si id passé
 if (isset($_GET['delete'])) {
     $idToDelete = $_GET['delete'];
 
-    // 1️⃣ Supprimer dans students.xml
+    // Supprimer dans students.xml
     foreach ($studentsXml->getAll()->student as $key => $student) {
         if ((string)$student['id'] === $idToDelete) {
             unset($studentsXml->getAll()->student[$key]);
@@ -24,7 +25,7 @@ if (isset($_GET['delete'])) {
         }
     }
 
-    // 2️⃣ Supprimer dans users.xml
+    // Supprimer dans users.xml
     foreach ($usersXml->getAll()->user as $key => $user) {
         if ((string)$user['id'] === $idToDelete) {
             unset($usersXml->getAll()->user[$key]);
@@ -37,9 +38,9 @@ if (isset($_GET['delete'])) {
     exit;
 }
 
+// Liste étudiants
 $students = $studentsXml->getAll()->student;
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -89,22 +90,27 @@ $students = $studentsXml->getAll()->student;
             <th>Classe</th>
             <th>Actions</th>
         </tr>
-        <?php if($students): ?>
-            <?php foreach($students as $student): ?>
+
+        <?php if ($students): ?>
+            <?php foreach ($students as $student): ?>
                 <tr>
                     <td><?= htmlspecialchars($student['id']) ?></td>
                     <td><?= htmlspecialchars($student->name) ?></td>
                     <td><?= htmlspecialchars($student->email) ?></td>
                     <td><?= htmlspecialchars($student->class) ?></td>
                     <td>
-                        <a href="delete.php?id=<?= $student['id'] ?>" class="delete"
-   onclick="return confirm('Voulez-vous vraiment supprimer cet étudiant ?')">Supprimer</a>
-
+                        <a href="delete.php?id=<?= $student['id'] ?>"
+                           class="delete"
+                           onclick="return confirm('Voulez-vous vraiment supprimer cet étudiant ?')">
+                           Supprimer
+                        </a>
                     </td>
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
-            <tr><td colspan="5">Aucun étudiant trouvé.</td></tr>
+            <tr>
+                <td colspan="5">Aucun étudiant trouvé.</td>
+            </tr>
         <?php endif; ?>
     </table>
 </div>

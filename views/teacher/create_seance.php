@@ -1,9 +1,8 @@
-
 <?php
 session_start();
 require_once "../../models/XmlManager.php";
 
-if ($_SESSION["user"]["role"] !== "teacher") {
+if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "teacher") {
     header("Location: ../../login.php");
     exit;
 }
@@ -16,9 +15,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $seance->addChild("teacher_id", $_SESSION["user"]["id"]);
     $seance->addChild("class_id", $_POST["class_id"]);
     $seance->addChild("module", $_POST["module"]);
-$seance->addChild("datetime", $_POST["datetime"]);
-
+    
+    // Utiliser la date/heure fournie ou l'actuelle
+    $datetime = $_POST["datetime"] ?? date("Y-m-d\TH:i");
+    $seance->addChild("datetime", $datetime);
+    
+    // Optionnel: ajouter un timestamp
+    $seance->addChild("created_at", date("Y-m-d H:i:s"));
+    
     $seancesXml->save();
+    
+    // Message de confirmation
+    $_SESSION['success_message'] = "Séance créée avec succès!";
 }
 
 header("Location: dashboard.php");
+exit;
+?>

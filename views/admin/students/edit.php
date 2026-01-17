@@ -2,21 +2,27 @@
 session_start();
 require_once "../../../models/XmlManager.php";
 
+// Sécurité : admin seulement
 if (!isset($_SESSION["user"]) || $_SESSION["user"]["role"] !== "admin") {
     header("Location: ../../../login.php");
     exit;
 }
 
+// Vérifier ID
 if (!isset($_GET['id'])) {
-    header("Location: dashboard.php");
+    header("Location: ../dashboard.php");
     exit;
 }
 
 $id = $_GET['id'];
 
 $studentsXml = new XmlManager(__DIR__ . "/../../../data/students.xml");
-$usersXml = new XmlManager(__DIR__ . "/../../../data/users.xml");
+$usersXml    = new XmlManager(__DIR__ . "/../../../data/users.xml");
+$classesXml  = new XmlManager(__DIR__ . "/../../../data/classes.xml");
 
+$classes = $classesXml->getAll()->class;
+
+// Chercher l’étudiant
 $student = null;
 foreach ($studentsXml->getAll()->student as $s) {
     if ((string)$s['id'] === $id) {
@@ -26,27 +32,22 @@ foreach ($studentsXml->getAll()->student as $s) {
 }
 
 if (!$student) {
-    header("Location: dashboard.php");
+    header("Location: ../dashboard.php");
     exit;
 }
 
-$error = "";
+// Traitement update
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $class = $_POST['class'];
 
-    // Update students.xml
-    $student->name = $name;
-    $student->email = $email;
-    $student->class = $class;
+    $student->name  = htmlspecialchars($_POST['name']);
+    $student->email = htmlspecialchars($_POST['email']);
+    $student->class = htmlspecialchars($_POST['class']);
     $studentsXml->save();
 
-    // Update users.xml
+    // Update users.xml (email seulement)
     foreach ($usersXml->getAll()->user as $user) {
         if ((string)$user['id'] === $id) {
-            $user->name = $name;
-            $user->email = $email;
+            $user->email = htmlspecialchars($_POST['email']);
             $usersXml->save();
             break;
         }
@@ -65,46 +66,54 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <link rel="stylesheet" href="../../../assets/css/style.css">
 </head>
 <body>
+
 <div class="modal" id="editModal">
     <div class="modal-content">
         <a href="#" class="close" id="closeModal">&times;</a>
         <h2>✏ Modifier Étudiant</h2>
+
         <form method="post">
-    Nom:<br>
-    <input type="text" name="name" value="<?= htmlspecialchars($student->name) ?>" required>
 
-    Email:<br>
-    <input type="email" name="email" value="<?= htmlspecialchars($student->email) ?>" required>
+            <label>Nom :</label><br>
+            <input type="text" name="name"
+                   value="<?= htmlspecialchars($student->name) ?>" required><br><br>
 
-    Classe:<br>
-    <input type="text" name="class" value="<?= htmlspecialchars($student->class) ?>" required>
+            <label>Email :</label><br>
+            <input type="email" name="email"
+                   value="<?= htmlspecialchars($student->email) ?>" required><br><br>
 
-    <div class="form-buttons">
-        <button type="submit" class="btn">Enregistrer</button>
-        <a href="../dashboard.php" class="btn logout">Annuler</a>
-    </div>
-</form>
+            <label>Classe :</label><br>
+            <select name="class" required>
+                <?php foreach ($classes as $class): ?>
+                    <option value="<?= $class['id'] ?>"
+                        <?= ($student->class == $class['id']) ? "selected" : "" ?>>
+                        <?= htmlspecialchars($class->name) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select><br><br>
 
+            <div class="form-buttons">
+                <button type="submit" class="btn">Enregistrer</button>
+                <a href="../dashboard.php" class="btn logout">Annuler</a>
+            </div>
+
+        </form>
     </div>
 </div>
 
-</div>
 <script>
-    // Afficher automatiquement le modal au chargement
-    document.getElementById("editModal").style.display = "block";
+document.getElementById("editModal").style.display = "block";
 
-    // Fermer le modal en cliquant sur la croix
-    document.getElementById("closeModal").onclick = function() {
-        window.location.href = "../dashboard.php"; // retour au dashboard
-    }
+document.getElementById("closeModal").onclick = function () {
+    window.location.href = "../dashboard.php";
+};
 
-    // Fermer le modal en cliquant en dehors de la fenêtre
-    window.onclick = function(event) {
-        let modal = document.getElementById("editModal");
-        if (event.target === modal) {
-            window.location.href = "../dashboard.php";
-        }
+window.onclick = function (event) {
+    const modal = document.getElementById("editModal");
+    if (event.target === modal) {
+        window.location.href = "../dashboard.php";
     }
+};
 </script>
 
 </body>
