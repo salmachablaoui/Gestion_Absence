@@ -19,145 +19,6 @@
   <xsl:variable name="absences" select="document($absencesXmlPath)/absences"/>
   <xsl:variable name="seances" select="document($seancesXmlPath)/seances"/>
 
-  <!-- Fonction de traduction simplifiée -->
-  <xsl:template name="translate">
-    <xsl:param name="key"/>
-    <xsl:choose>
-      <xsl:when test="$lang = 'fr'">
-        <xsl:choose>
-          <xsl:when test="$key = 'title'">Tableau de Bord Enseignant</xsl:when>
-          <xsl:when test="$key = 'welcome'">Bienvenue</xsl:when>
-          <xsl:when test="$key = 'create_session'">➕ Créer une séance</xsl:when>
-          <xsl:when test="$key = 'logout'">🔒 Déconnexion</xsl:when>
-          <xsl:when test="$key = 'sessions'">📅 Séances</xsl:when>
-          <xsl:when test="$key = 'no_sessions_warning'">⚠️ Aucune séance trouvée pour votre compte.<br/><small>Créez votre première séance en cliquant sur le bouton "➕ Créer une séance".</small></xsl:when>
-          <xsl:when test="$key = 'id'">ID</xsl:when>
-          <xsl:when test="$key = 'class'">Classe</xsl:when>
-          <xsl:when test="$key = 'module'">Module</xsl:when>
-          <xsl:when test="$key = 'datetime'">Date &amp; Heure</xsl:when>
-          <xsl:when test="$key = 'actions'">Actions</xsl:when>
-          <xsl:when test="$key = 'manage_absences'">📋 Gérer les absences</xsl:when>
-          <xsl:when test="$key = 'close'">Fermer</xsl:when>
-          <xsl:when test="$key = 'name'">Nom</xsl:when>
-          <xsl:when test="$key = 'email'">Email</xsl:when>
-          <xsl:when test="$key = 'absent'">Absent</xsl:when>
-          <xsl:when test="$key = 'status'">Statut</xsl:when>
-          <xsl:when test="$key = 'absent_label'">❌ Absent</xsl:when>
-          <xsl:when test="$key = 'present_label'">✅ Présent</xsl:when>
-          <xsl:when test="$key = 'no_students'">Aucun étudiant dans cette classe</xsl:when>
-          <xsl:when test="$key = 'no_sessions'">Aucune séance créée pour le moment</xsl:when>
-          <xsl:when test="$key = 'save_absences'">💾 Enregistrer les absences</xsl:when>
-          <xsl:when test="$key = 'cancel'">Annuler</xsl:when>
-          <xsl:when test="$key = 'create_session_title'">➕ Créer une séance</xsl:when>
-          <xsl:when test="$key = 'select_class'">Sélectionnez une classe</xsl:when>
-          <xsl:when test="$key = 'select_module'">Sélectionnez un module</xsl:when>
-          <xsl:when test="$key = 'datetime_label'">Date &amp; Heure</xsl:when>
-          <xsl:when test="$key = 'create'">Créer</xsl:when>
-          <xsl:when test="$key = 'select_class_first'">-- Sélectionnez d'abord une classe --</xsl:when>
-          <xsl:when test="$key = 'choose_class'">-- Choisir une classe --</xsl:when>
-          <xsl:when test="$key = 'choose_module'">-- Choisir un module --</xsl:when>
-          <xsl:when test="$key = 'no_modules'">Aucun module disponible</xsl:when>
-          <xsl:when test="$key = 'modules_available'">module(s) disponible(s)</xsl:when>
-          <xsl:when test="$key = 'no_modules_configured'">Aucun module configuré pour cette classe</xsl:when>
-          <xsl:when test="$key = 'class_not_found'">Classe ID:</xsl:when>
-          <xsl:when test="$key = 'date_not_specified'">Date non spécifiée</xsl:when>
-          <xsl:when test="$key = 'confirm_absences'">Êtes-vous sûr de vouloir enregistrer les absences ?</xsl:when>
-          <xsl:when test="$key = 'saving'">⏳ Enregistrement...</xsl:when>
-          <xsl:when test="$key = 'fill_required'">Veuillez remplir tous les champs obligatoires</xsl:when>
-          <xsl:otherwise><xsl:value-of select="$key"/></xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:when test="$lang = 'en'">
-        <xsl:choose>
-          <xsl:when test="$key = 'title'">Teacher Dashboard</xsl:when>
-          <xsl:when test="$key = 'welcome'">Welcome</xsl:when>
-          <xsl:when test="$key = 'create_session'">➕ Create Session</xsl:when>
-          <xsl:when test="$key = 'logout'">🔒 Logout</xsl:when>
-          <xsl:when test="$key = 'sessions'">📅 Sessions</xsl:when>
-          <xsl:when test="$key = 'no_sessions_warning'">⚠️ No sessions found for your account.<br/><small>Create your first session by clicking the "➕ Create Session" button.</small></xsl:when>
-          <xsl:when test="$key = 'id'">ID</xsl:when>
-          <xsl:when test="$key = 'class'">Class</xsl:when>
-          <xsl:when test="$key = 'module'">Module</xsl:when>
-          <xsl:when test="$key = 'datetime'">Date &amp; Time</xsl:when>
-          <xsl:when test="$key = 'actions'">Actions</xsl:when>
-          <xsl:when test="$key = 'manage_absences'">📋 Manage Attendance</xsl:when>
-          <xsl:when test="$key = 'close'">Close</xsl:when>
-          <xsl:when test="$key = 'name'">Name</xsl:when>
-          <xsl:when test="$key = 'email'">Email</xsl:when>
-          <xsl:when test="$key = 'absent'">Absent</xsl:when>
-          <xsl:when test="$key = 'status'">Status</xsl:when>
-          <xsl:when test="$key = 'absent_label'">❌ Absent</xsl:when>
-          <xsl:when test="$key = 'present_label'">✅ Present</xsl:when>
-          <xsl:when test="$key = 'no_students'">No students in this class</xsl:when>
-          <xsl:when test="$key = 'no_sessions'">No sessions created yet</xsl:when>
-          <xsl:when test="$key = 'save_absences'">💾 Save Attendance</xsl:when>
-          <xsl:when test="$key = 'cancel'">Cancel</xsl:when>
-          <xsl:when test="$key = 'create_session_title'">➕ Create Session</xsl:when>
-          <xsl:when test="$key = 'select_class'">Select a class</xsl:when>
-          <xsl:when test="$key = 'select_module'">Select a module</xsl:when>
-          <xsl:when test="$key = 'datetime_label'">Date &amp; Time</xsl:when>
-          <xsl:when test="$key = 'create'">Create</xsl:when>
-          <xsl:when test="$key = 'select_class_first'">-- Select a class first --</xsl:when>
-          <xsl:when test="$key = 'choose_class'">-- Choose a class --</xsl:when>
-          <xsl:when test="$key = 'choose_module'">-- Choose a module --</xsl:when>
-          <xsl:when test="$key = 'no_modules'">No modules available</xsl:when>
-          <xsl:when test="$key = 'modules_available'">module(s) available</xsl:when>
-          <xsl:when test="$key = 'no_modules_configured'">No modules configured for this class</xsl:when>
-          <xsl:when test="$key = 'class_not_found'">Class ID:</xsl:when>
-          <xsl:when test="$key = 'date_not_specified'">Date not specified</xsl:when>
-          <xsl:when test="$key = 'confirm_absences'">Are you sure you want to save attendance?</xsl:when>
-          <xsl:when test="$key = 'saving'">⏳ Saving...</xsl:when>
-          <xsl:when test="$key = 'fill_required'">Please fill all required fields</xsl:when>
-          <xsl:otherwise><xsl:value-of select="$key"/></xsl:otherwise>
-        </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:choose>
-          <xsl:when test="$key = 'title'">Tableau de Bord Enseignant</xsl:when>
-          <xsl:when test="$key = 'welcome'">Bienvenue</xsl:when>
-          <xsl:when test="$key = 'create_session'">➕ Créer une séance</xsl:when>
-          <xsl:when test="$key = 'logout'">🔒 Déconnexion</xsl:when>
-          <xsl:when test="$key = 'sessions'">📅 Séances</xsl:when>
-          <xsl:when test="$key = 'no_sessions_warning'">⚠️ Aucune séance trouvée pour votre compte.<br/><small>Créez votre première séance en cliquant sur le bouton "➕ Créer une séance".</small></xsl:when>
-          <xsl:when test="$key = 'id'">ID</xsl:when>
-          <xsl:when test="$key = 'class'">Classe</xsl:when>
-          <xsl:when test="$key = 'module'">Module</xsl:when>
-          <xsl:when test="$key = 'datetime'">Date &amp; Heure</xsl:when>
-          <xsl:when test="$key = 'actions'">Actions</xsl:when>
-          <xsl:when test="$key = 'manage_absences'">📋 Gérer les absences</xsl:when>
-          <xsl:when test="$key = 'close'">Fermer</xsl:when>
-          <xsl:when test="$key = 'name'">Nom</xsl:when>
-          <xsl:when test="$key = 'email'">Email</xsl:when>
-          <xsl:when test="$key = 'absent'">Absent</xsl:when>
-          <xsl:when test="$key = 'status'">Statut</xsl:when>
-          <xsl:when test="$key = 'absent_label'">❌ Absent</xsl:when>
-          <xsl:when test="$key = 'present_label'">✅ Présent</xsl:when>
-          <xsl:when test="$key = 'no_students'">Aucun étudiant dans cette classe</xsl:when>
-          <xsl:when test="$key = 'no_sessions'">Aucune séance créée pour le moment</xsl:when>
-          <xsl:when test="$key = 'save_absences'">💾 Enregistrer les absences</xsl:when>
-          <xsl:when test="$key = 'cancel'">Annuler</xsl:when>
-          <xsl:when test="$key = 'create_session_title'">➕ Créer une séance</xsl:when>
-          <xsl:when test="$key = 'select_class'">Sélectionnez une classe</xsl:when>
-          <xsl:when test="$key = 'select_module'">Sélectionnez un module</xsl:when>
-          <xsl:when test="$key = 'datetime_label'">Date &amp; Heure</xsl:when>
-          <xsl:when test="$key = 'create'">Créer</xsl:when>
-          <xsl:when test="$key = 'select_class_first'">-- Sélectionnez d'abord une classe --</xsl:when>
-          <xsl:when test="$key = 'choose_class'">-- Choisir une classe --</xsl:when>
-          <xsl:when test="$key = 'choose_module'">-- Choisir un module --</xsl:when>
-          <xsl:when test="$key = 'no_modules'">Aucun module disponible</xsl:when>
-          <xsl:when test="$key = 'modules_available'">module(s) disponible(s)</xsl:when>
-          <xsl:when test="$key = 'no_modules_configured'">Aucun module configuré pour cette classe</xsl:when>
-          <xsl:when test="$key = 'class_not_found'">Classe ID:</xsl:when>
-          <xsl:when test="$key = 'date_not_specified'">Date non spécifiée</xsl:when>
-          <xsl:when test="$key = 'confirm_absences'">Êtes-vous sûr de vouloir enregistrer les absences ?</xsl:when>
-          <xsl:when test="$key = 'saving'">⏳ Enregistrement...</xsl:when>
-          <xsl:when test="$key = 'fill_required'">Veuillez remplir tous les champs obligatoires</xsl:when>
-          <xsl:otherwise><xsl:value-of select="$key"/></xsl:otherwise>
-        </xsl:choose>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <xsl:template match="/">
     <html>
       <xsl:attribute name="lang">
@@ -166,11 +27,13 @@
       <head>
         <meta charset="UTF-8"/>
         <title>
-          <xsl:call-template name="translate">
-            <xsl:with-param name="key">title</xsl:with-param>
-          </xsl:call-template>
+          <span class="translatable" data-fr="Tableau de Bord Enseignant" data-en="Teacher Dashboard">
+            Tableau de Bord Enseignant
+          </span>
         </title>
         <link rel="stylesheet" href="../../assets/css/style.css"/>
+        <!-- Inclure Font Awesome pour les icônes -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
         <style>
           /* Variables CSS pour les thèmes - Bleu Marine */
           :root {
@@ -204,9 +67,6 @@
           
           /* En-tête */
           .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 30px;
             padding: 25px;
             background: linear-gradient(135deg, var(--primary-color), #283593);
@@ -215,65 +75,56 @@
             color: white;
           }
           
-          .teacher-info {
+          .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          
+          .header-content h1 {
+            margin: 0;
+            font-size: 28px;
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          
+          .header-content h1 i {
+            font-size: 24px;
+          }
+          
+          .header-content > div > p {
+            margin: 8px 0 0 0;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+          }
+          
+          .header-actions {
             display: flex;
             align-items: center;
             gap: 20px;
           }
           
-          .teacher-avatar {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #ffffff, #e3f2fd);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            font-size: 28px;
-            font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            border: 3px solid white;
-          }
-          
-          .teacher-details h1 {
-            margin: 0;
-            font-size: 28px;
-            color: white;
-            font-weight: 600;
-          }
-          
-          .teacher-details .welcome {
-            margin: 8px 0 0 0;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-          
-          .welcome-icon {
-            font-size: 20px;
-          }
-          
-          /* Boutons de langue */
           .language-switcher {
             display: flex;
-            gap: 12px;
-            margin-left: auto;
-            margin-right: 20px;
+            gap: 10px;
           }
           
           .lang-btn {
-            padding: 10px 20px;
+            padding: 8px 16px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: 600;
             transition: var(--transition);
             color: white;
             backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
           }
           
           .lang-btn:hover {
@@ -288,6 +139,29 @@
             border-color: white;
             box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
           }
+          
+          .logout-btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            color: white;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          
+          .logout-btn:hover {
+            border-color: var(--accent-color);
+            background: rgba(231, 76, 60, 0.2);
+            transform: translateY(-2px);
+          }
+          
+          /* Le reste du CSS reste le même... */
           
           /* Actions principales */
           .main-actions {
@@ -591,10 +465,18 @@
             }
             
             .header {
+              padding: 20px;
+            }
+            
+            .header-content {
               flex-direction: column;
               gap: 20px;
               align-items: flex-start;
-              padding: 20px;
+            }
+            
+            .header-actions {
+              width: 100%;
+              justify-content: space-between;
             }
             
             .main-actions {
@@ -607,27 +489,9 @@
               flex-direction: column;
             }
             
-            .language-switcher {
-              margin: 15px 0 0 0;
-              width: 100%;
-              justify-content: center;
-            }
-            
             table {
               display: block;
               overflow-x: auto;
-            }
-            
-            .teacher-info {
-              flex-direction: column;
-              text-align: center;
-              gap: 15px;
-            }
-            
-            .teacher-avatar {
-              width: 60px;
-              height: 60px;
-              font-size: 24px;
             }
           }
         </style>
@@ -636,60 +500,55 @@
         <div class="container">
           <!-- En-tête avec informations enseignant -->
           <div class="header">
-            <div class="teacher-info">
-              <div class="teacher-avatar">
-                <xsl:choose>
-                  <xsl:when test="$teacherName != ''">
-                    <xsl:value-of select="substring($teacherName, 1, 1)"/>
-                  </xsl:when>
-                  <xsl:otherwise>E</xsl:otherwise>
-                </xsl:choose>
-              </div>
-              <div class="teacher-details">
-                <h1>
-                  <xsl:choose>
-                    <xsl:when test="$teacherName != ''">
-                      <xsl:value-of select="$teacherName"/>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:call-template name="translate">
-                        <xsl:with-param name="key">welcome</xsl:with-param>
-                      </xsl:call-template>
-                    </xsl:otherwise>
-                  </xsl:choose>
+            <div class="header-content">
+              <div>
+                <h1><i class="fas fa-chalkboard-teacher"></i> 
+                  <span class="translatable" data-fr="Tableau de Bord Enseignant" data-en="Teacher Dashboard">
+                    Tableau de Bord Enseignant
+                  </span>
                 </h1>
-                <p class="welcome">
-                  <span class="welcome-icon">👋</span>
-                  <xsl:call-template name="translate">
-                    <xsl:with-param name="key">welcome</xsl:with-param>
-                  </xsl:call-template>
-                  <xsl:text>, </xsl:text>
-                  <xsl:choose>
-                    <xsl:when test="$teacherName != ''">
-                      <strong><xsl:value-of select="$teacherName"/></strong>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <strong>Enseignant</strong>
-                    </xsl:otherwise>
-                  </xsl:choose>
+                <p>
+                  <span class="translatable" data-fr="Bienvenue," data-en="Welcome,">
+                    Bienvenue,
+                  </span> 
+                  <strong>
+                    <xsl:choose>
+                      <xsl:when test="$teacherName != ''">
+                        <xsl:value-of select="$teacherName"/>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <span class="translatable" data-fr="Enseignant" data-en="Teacher">
+                          Enseignant
+                        </span>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </strong>
                 </p>
               </div>
-            </div>
-            
-            <!-- Boutons de langue -->
-            <div class="language-switcher">
-              <button class="lang-btn" data-lang="fr">
-                <xsl:if test="$lang = 'fr'">
-                  <xsl:attribute name="class">lang-btn active</xsl:attribute>
-                </xsl:if>
-                🇫🇷 FR
-              </button>
-              <button class="lang-btn" data-lang="en">
-                <xsl:if test="$lang = 'en'">
-                  <xsl:attribute name="class">lang-btn active</xsl:attribute>
-                </xsl:if>
-                🇬🇧 EN
-              </button>
+              <div class="header-actions">
+                <div class="language-switcher">
+                  <button class="lang-btn" onclick="switchLanguage('fr')" title="Français">
+                    <xsl:if test="$lang = 'fr'">
+                      <xsl:attribute name="class">lang-btn active</xsl:attribute>
+                    </xsl:if>
+                    <i class="fas fa-flag"></i> 
+                    <span class="translatable" data-fr="FR" data-en="FR">FR</span>
+                  </button>
+                  <button class="lang-btn" onclick="switchLanguage('en')" title="English">
+                    <xsl:if test="$lang = 'en'">
+                      <xsl:attribute name="class">lang-btn active</xsl:attribute>
+                    </xsl:if>
+                    <i class="fas fa-flag-usa"></i> 
+                    <span class="translatable" data-fr="EN" data-en="EN">EN</span>
+                  </button>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                  <i class="fas fa-sign-out-alt"></i> 
+                  <span class="logout-text translatable" data-fr="Déconnexion" data-en="Logout">
+                    Déconnexion
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -697,15 +556,12 @@
           <div class="main-actions">
             <div class="action-buttons">
               <button id="openAddSeance" class="btn btn-primary">
-                <xsl:call-template name="translate">
-                  <xsl:with-param name="key">create_session</xsl:with-param>
-                </xsl:call-template>
+                <i class="fas fa-plus-circle"></i>
+                <span class="translatable" data-fr="Créer une séance" data-en="Create Session">
+                  Créer une séance
+                </span>
               </button>
-              <a href="../../logout.php" class="btn btn-danger">
-                <xsl:call-template name="translate">
-                  <xsl:with-param name="key">logout</xsl:with-param>
-                </xsl:call-template>
-              </a>
+              
             </div>
           </div>
 
@@ -713,9 +569,10 @@
           <div class="sessions-section">
             <div class="section-header">
               <h2>
-                <xsl:call-template name="translate">
-                  <xsl:with-param name="key">sessions</xsl:with-param>
-                </xsl:call-template>
+                <i class="fas fa-calendar-alt"></i>
+                <span class="translatable" data-fr="Séances" data-en="Sessions">
+                  Séances
+                </span>
               </h2>
             </div>
             
@@ -723,9 +580,13 @@
             <xsl:if test="count($seances/seance[teacher_id = $teacherId]) = 0">
               <div class="warning-message">
                 <p>
-                  <xsl:call-template name="translate">
-                    <xsl:with-param name="key">no_sessions_warning</xsl:with-param>
-                  </xsl:call-template>
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <span class="translatable" data-fr="⚠️ Aucune séance trouvée pour votre compte.&lt;br/&gt;&lt;small&gt;Créez votre première séance en cliquant sur le bouton &quot;➕ Créer une séance&quot;.&lt;/small&gt;" 
+                        data-en="⚠️ No sessions found for your account.&lt;br/&gt;&lt;small&gt;Create your first session by clicking the &quot;➕ Create Session&quot; button.&lt;/small&gt;">
+                    <xsl:text disable-output-escaping="yes">
+                      &lt;span&gt;⚠️ Aucune séance trouvée pour votre compte.&lt;br/&gt;&lt;small&gt;Créez votre première séance en cliquant sur le bouton "➕ Créer une séance".&lt;/small&gt;&lt;/span&gt;
+                    </xsl:text>
+                  </span>
                 </p>
               </div>
             </xsl:if>
@@ -734,29 +595,21 @@
               <thead>
                 <tr>
                   <th>
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">id</xsl:with-param>
-                    </xsl:call-template>
+                    <span class="translatable" data-fr="ID" data-en="ID">ID</span>
                   </th>
                   <th>
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">class</xsl:with-param>
-                    </xsl:call-template>
+                    <span class="translatable" data-fr="Classe" data-en="Class">Classe</span>
                   </th>
                   <th>
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">module</xsl:with-param>
-                    </xsl:call-template>
+                    <span class="translatable" data-fr="Module" data-en="Module">Module</span>
                   </th>
                   <th>
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">datetime</xsl:with-param>
-                    </xsl:call-template>
+                    <span class="translatable" data-fr="Date &amp; Heure" data-en="Date &amp; Time">
+                      Date &amp; Heure
+                    </span>
                   </th>
                   <th>
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">actions</xsl:with-param>
-                    </xsl:call-template>
+                    <span class="translatable" data-fr="Actions" data-en="Actions">Actions</span>
                   </th>
                 </tr>
               </thead>
@@ -780,9 +633,9 @@
                             </xsl:when>
                             <xsl:otherwise>
                               <span style="color: var(--accent-color);">
-                                <xsl:call-template name="translate">
-                                  <xsl:with-param name="key">class_not_found</xsl:with-param>
-                                </xsl:call-template>
+                                <span class="translatable" data-fr="Classe ID:" data-en="Class ID:">
+                                  Classe ID:
+                                </span>
                                 <xsl:text> </xsl:text>
                                 <xsl:value-of select="$classId"/>
                               </span>
@@ -814,18 +667,19 @@
                             </xsl:when>
                             <xsl:otherwise>
                               <span style="color: var(--accent-color);">
-                                <xsl:call-template name="translate">
-                                  <xsl:with-param name="key">date_not_specified</xsl:with-param>
-                                </xsl:call-template>
+                                <span class="translatable" data-fr="Date non spécifiée" data-en="Date not specified">
+                                  Date non spécifiée
+                                </span>
                               </span>
                             </xsl:otherwise>
                           </xsl:choose>
                         </td>
                         <td>
                           <button class="btn btn-primary manageAbsenceBtn" data-seance-id="{$currentSeanceId}">
-                            <xsl:call-template name="translate">
-                              <xsl:with-param name="key">manage_absences</xsl:with-param>
-                            </xsl:call-template>
+                            <i class="fas fa-clipboard-list"></i>
+                            <span class="translatable" data-fr="Gérer les absences" data-en="Manage Attendance">
+                              Gérer les absences
+                            </span>
                           </button>
                         </td>
                       </tr>
@@ -844,24 +698,16 @@
                                 <thead>
                                   <tr>
                                     <th>
-                                      <xsl:call-template name="translate">
-                                        <xsl:with-param name="key">name</xsl:with-param>
-                                      </xsl:call-template>
+                                      <span class="translatable" data-fr="Nom" data-en="Name">Nom</span>
                                     </th>
                                     <th>
-                                      <xsl:call-template name="translate">
-                                        <xsl:with-param name="key">email</xsl:with-param>
-                                      </xsl:call-template>
+                                      <span class="translatable" data-fr="Email" data-en="Email">Email</span>
                                     </th>
                                     <th>
-                                      <xsl:call-template name="translate">
-                                        <xsl:with-param name="key">absent</xsl:with-param>
-                                      </xsl:call-template>
+                                      <span class="translatable" data-fr="Absent" data-en="Absent">Absent</span>
                                     </th>
                                     <th>
-                                      <xsl:call-template name="translate">
-                                        <xsl:with-param name="key">status</xsl:with-param>
-                                      </xsl:call-template>
+                                      <span class="translatable" data-fr="Statut" data-en="Status">Statut</span>
                                     </th>
                                   </tr>
                                 </thead>
@@ -900,25 +746,27 @@
                                               </xsl:if>
                                             </input>
                                             <label style="display: inline; margin-left: 8px;">
-                                              <xsl:call-template name="translate">
-                                                <xsl:with-param name="key">absent</xsl:with-param>
-                                              </xsl:call-template>
+                                              <span class="translatable" data-fr="Absent" data-en="Absent">
+                                                Absent
+                                              </span>
                                             </label>
                                           </td>
                                           <td>
                                             <xsl:choose>
                                               <xsl:when test="$isAbsent = '1'">
                                                 <span class="status-badge status-absent">
-                                                  <xsl:call-template name="translate">
-                                                    <xsl:with-param name="key">absent_label</xsl:with-param>
-                                                  </xsl:call-template>
+                                                  <i class="fas fa-times"></i>
+                                                  <span class="translatable" data-fr="Absent" data-en="Absent">
+                                                    Absent
+                                                  </span>
                                                 </span>
                                               </xsl:when>
                                               <xsl:otherwise>
                                                 <span class="status-badge status-present">
-                                                  <xsl:call-template name="translate">
-                                                    <xsl:with-param name="key">present_label</xsl:with-param>
-                                                  </xsl:call-template>
+                                                  <i class="fas fa-check"></i>
+                                                  <span class="translatable" data-fr="Présent" data-en="Present">
+                                                    Présent
+                                                  </span>
                                                 </span>
                                               </xsl:otherwise>
                                             </xsl:choose>
@@ -930,9 +778,10 @@
                                       <tr>
                                         <td colspan="4" class="no-data">
                                           <em>
-                                            <xsl:call-template name="translate">
-                                              <xsl:with-param name="key">no_students</xsl:with-param>
-                                            </xsl:call-template>
+                                            <span class="translatable" data-fr="Aucun étudiant dans cette classe" 
+                                                  data-en="No students in this class">
+                                              Aucun étudiant dans cette classe
+                                            </span>
                                           </em>
                                         </td>
                                       </tr>
@@ -942,14 +791,16 @@
                               </table>
                               <div class="form-buttons">
                                 <button type="submit" class="btn btn-primary">
-                                  <xsl:call-template name="translate">
-                                    <xsl:with-param name="key">save_absences</xsl:with-param>
-                                  </xsl:call-template>
+                                  <i class="fas fa-save"></i>
+                                  <span class="translatable" data-fr="Enregistrer les absences" data-en="Save Attendance">
+                                    Enregistrer les absences
+                                  </span>
                                 </button>
                                 <button type="button" class="btn btn-danger cancel-absence-btn" data-seance-id="{$currentSeanceId}">
-                                  <xsl:call-template name="translate">
-                                    <xsl:with-param name="key">cancel</xsl:with-param>
-                                  </xsl:call-template>
+                                  <i class="fas fa-times"></i>
+                                  <span class="translatable" data-fr="Annuler" data-en="Cancel">
+                                    Annuler
+                                  </span>
                                 </button>
                               </div>
                             </form>
@@ -962,9 +813,10 @@
                     <tr>
                       <td colspan="5" class="no-data">
                         <em>
-                          <xsl:call-template name="translate">
-                            <xsl:with-param name="key">no_sessions</xsl:with-param>
-                          </xsl:call-template>
+                          <span class="translatable" data-fr="Aucune séance créée pour le moment" 
+                                data-en="No sessions created yet">
+                            Aucune séance créée pour le moment
+                          </span>
                         </em>
                       </td>
                     </tr>
@@ -979,9 +831,10 @@
             <div class="modal-content">
               <span class="close" id="closeAddSeance">✕</span>
               <h2>
-                <xsl:call-template name="translate">
-                  <xsl:with-param name="key">create_session_title</xsl:with-param>
-                </xsl:call-template>
+                <i class="fas fa-plus-circle"></i>
+                <span class="translatable" data-fr="Créer une séance" data-en="Create Session">
+                  Créer une séance
+                </span>
               </h2>
               
               <form method="post" action="create_seance.php" id="createSeanceForm">
@@ -990,16 +843,16 @@
                 
                 <div class="form-group">
                   <label>
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">select_class</xsl:with-param>
-                    </xsl:call-template>
+                    <span class="translatable" data-fr="Sélectionnez une classe" data-en="Select a class">
+                      Sélectionnez une classe
+                    </span>
                     :
                   </label>
                   <select name="class_id" id="classSelect" required="required">
                     <option value="">
-                      <xsl:call-template name="translate">
-                        <xsl:with-param name="key">choose_class</xsl:with-param>
-                      </xsl:call-template>
+                      <span class="translatable" data-fr="-- Choisir une classe --" data-en="-- Choose a class --">
+                        -- Choisir une classe --
+                      </span>
                     </option>
                     <xsl:for-each select="$classes/class">
                       <xsl:sort select="name"/>
@@ -1012,16 +865,17 @@
                 
                 <div class="form-group">
                   <label>
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">select_module</xsl:with-param>
-                    </xsl:call-template>
+                    <span class="translatable" data-fr="Sélectionnez un module" data-en="Select a module">
+                      Sélectionnez un module
+                    </span>
                     :
                   </label>
                   <select name="module" id="moduleSelect" required="required" disabled="disabled">
                     <option value="">
-                      <xsl:call-template name="translate">
-                        <xsl:with-param name="key">select_class_first</xsl:with-param>
-                      </xsl:call-template>
+                      <span class="translatable" data-fr="-- Sélectionnez d'abord une classe --" 
+                            data-en="-- Select a class first --">
+                        -- Sélectionnez d'abord une classe --
+                      </span>
                     </option>
                   </select>
                   <small id="moduleHelp" style="display: block; margin-top: 8px; color: var(--light-text); font-size: 13px;"></small>
@@ -1029,9 +883,9 @@
                 
                 <div class="form-group">
                   <label>
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">datetime_label</xsl:with-param>
-                    </xsl:call-template>
+                    <span class="translatable" data-fr="Date &amp; Heure" data-en="Date &amp; Time">
+                      Date &amp; Heure
+                    </span>
                     :
                   </label>
                   <input type="datetime-local" name="datetime" required="required"/>
@@ -1039,14 +893,16 @@
 
                 <div class="form-buttons">
                   <button type="submit" class="btn btn-primary" id="submitBtn">
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">create</xsl:with-param>
-                    </xsl:call-template>
+                    <i class="fas fa-plus"></i>
+                    <span class="translatable" data-fr="Créer" data-en="Create">
+                      Créer
+                    </span>
                   </button>
                   <button type="button" class="btn btn-danger" id="cancelAddSeance">
-                    <xsl:call-template name="translate">
-                      <xsl:with-param name="key">cancel</xsl:with-param>
-                    </xsl:call-template>
+                    <i class="fas fa-times"></i>
+                    <span class="translatable" data-fr="Annuler" data-en="Cancel">
+                      Annuler
+                    </span>
                   </button>
                 </div>
               </form>
@@ -1066,68 +922,156 @@
           'TC': ['Chimie', 'Physique', 'Maths Appliquées', 'Thermodynamique']
         };
         
-        // Traductions JavaScript synchronisées avec XSLT
-        const translations = {
-          fr: {
-            select_class_first: '-- Sélectionnez d\'abord une classe --',
-            choose_module: '-- Choisir un module --',
-            no_modules: 'Aucun module disponible',
-            modules_available: 'module(s) disponible(s)',
-            no_modules_configured: 'Aucun module configuré pour cette classe',
-            close: 'Fermer',
-            manage_absences: '📋 Gérer les absences',
-            confirm_absences: 'Êtes-vous sûr de vouloir enregistrer les absences ?',
-            saving: '⏳ Enregistrement...',
-            fill_required: 'Veuillez remplir tous les champs obligatoires',
-            absent_label: '❌ Absent',
-            present_label: '✅ Présent'
-          },
-          en: {
-            select_class_first: '-- Select a class first --',
-            choose_module: '-- Choose a module --',
-            no_modules: 'No modules available',
-            modules_available: 'module(s) available',
-            no_modules_configured: 'No modules configured for this class',
-            close: 'Close',
-            manage_absences: '📋 Manage Attendance',
-            confirm_absences: 'Are you sure you want to save attendance?',
-            saving: '⏳ Saving...',
-            fill_required: 'Please fill all required fields',
-            absent_label: '❌ Absent',
-            present_label: '✅ Present'
-          }
-        };
-        
-        // Fonction pour obtenir la langue actuelle
-        function getCurrentLang() {
-          return document.documentElement.getAttribute('lang') || 'fr';
+        // Fonction pour basculer la langue
+        function switchLanguage(lang) {
+          // Mettre à jour l'attribut lang de la page
+          document.documentElement.setAttribute('lang', lang);
+          
+          // Mettre à jour les boutons de langue
+          document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if ((lang === 'fr' && btn.querySelector('i.fa-flag')) || 
+                (lang === 'en' && btn.querySelector('i.fa-flag-usa'))) {
+              btn.classList.add('active');
+            }
+          });
+          
+          // Mettre à jour tous les éléments traduisibles
+          document.querySelectorAll('.translatable').forEach(element => {
+            const frenchText = element.getAttribute('data-fr');
+            const englishText = element.getAttribute('data-en');
+            
+            if (lang === 'fr' && frenchText) {
+              // Remplacer le HTML si nécessaire
+              if (frenchText.includes('<')) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = frenchText;
+                element.innerHTML = tempDiv.innerHTML;
+              } else {
+                element.textContent = frenchText;
+              }
+            } else if (lang === 'en' && englishText) {
+              if (englishText.includes('<')) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = englishText;
+                element.innerHTML = tempDiv.innerHTML;
+              } else {
+                element.textContent = englishText;
+              }
+            }
+          });
+          
+          // Mettre à jour les boutons qui ont des attributs data-fr/data-en
+          document.querySelectorAll('button[data-fr], button[data-en], a[data-fr], a[data-en]').forEach(btn => {
+            const frenchText = btn.getAttribute('data-fr');
+            const englishText = btn.getAttribute('data-en');
+            
+            if (lang === 'fr' && frenchText) {
+              const span = btn.querySelector('.logout-text') || btn;
+              if (span.querySelector) {
+                const textSpan = span.querySelector('.translatable') || span;
+                textSpan.textContent = frenchText;
+              }
+            } else if (lang === 'en' && englishText) {
+              const span = btn.querySelector('.logout-text') || btn;
+              if (span.querySelector) {
+                const textSpan = span.querySelector('.translatable') || span;
+                textSpan.textContent = englishText;
+              }
+            }
+          });
+          
+          // Mettre à jour le paramètre de langue dans les formulaires
+          document.querySelectorAll('input[name="lang"]').forEach(input => {
+            input.value = lang;
+          });
+          
+          // Sauvegarder la préférence de langue
+          localStorage.setItem('preferredLanguage', lang);
+          
+          // Mettre à jour le texte du module help
+          updateModuleHelpText(lang);
         }
         
-        // Fonction pour traduire en JavaScript
-        function translate(key) {
-          const lang = getCurrentLang();
+        // Fonction pour mettre à jour le texte d'aide des modules
+        function updateModuleHelpText(lang) {
+          const moduleHelp = document.getElementById('moduleHelp');
+          if (moduleHelp) {
+            const classId = document.getElementById('classSelect').value;
+            const modules = modulesData[classId] || [];
+            
+            if (modules.length > 0) {
+              if (lang === 'fr') {
+                moduleHelp.textContent = modules.length + ' module(s) disponible(s)';
+              } else {
+                moduleHelp.textContent = modules.length + ' module(s) available';
+              }
+            } else {
+              if (lang === 'fr') {
+                moduleHelp.textContent = 'Aucun module configuré pour cette classe';
+              } else {
+                moduleHelp.textContent = 'No modules configured for this class';
+              }
+            }
+          }
+        }
+        
+        // Fonction de déconnexion
+        function logout() {
+          if (confirm(getTranslation('confirm_logout'))) {
+            window.location.href = '../../logout.php';
+          }
+        }
+        
+        // Fonction pour obtenir une traduction
+        function getTranslation(key) {
+          const translations = {
+            fr: {
+              confirm_logout: 'Êtes-vous sûr de vouloir vous déconnecter ?',
+              select_class_first: '-- Sélectionnez d\'abord une classe --',
+              choose_module: '-- Choisir un module --',
+              no_modules: 'Aucun module disponible',
+              modules_available: 'module(s) disponible(s)',
+              no_modules_configured: 'Aucun module configuré pour cette classe',
+              close: 'Fermer',
+              manage_absences: 'Gérer les absences',
+              confirm_absences: 'Êtes-vous sûr de vouloir enregistrer les absences ?',
+              saving: 'Enregistrement...',
+              fill_required: 'Veuillez remplir tous les champs obligatoires'
+            },
+            en: {
+              confirm_logout: 'Are you sure you want to logout?',
+              select_class_first: '-- Select a class first --',
+              choose_module: '-- Choose a module --',
+              no_modules: 'No modules available',
+              modules_available: 'module(s) available',
+              no_modules_configured: 'No modules configured for this class',
+              close: 'Close',
+              manage_absences: 'Manage Attendance',
+              confirm_absences: 'Are you sure you want to save attendance?',
+              saving: 'Saving...',
+              fill_required: 'Please fill all required fields'
+            }
+          };
+          
+          const lang = document.documentElement.getAttribute('lang') || 'fr';
           return translations[lang]?.[key] || key;
         }
         
         document.addEventListener('DOMContentLoaded', function() {
-          // Sauvegarder le texte original des boutons
+          // Restaurer la langue préférée
+          const preferredLanguage = localStorage.getItem('preferredLanguage') || 'fr';
+          if (preferredLanguage !== document.documentElement.getAttribute('lang')) {
+            switchLanguage(preferredLanguage);
+          }
+          
+          // Sauvegarder le texte original des boutons de gestion d'absences
           document.querySelectorAll('.manageAbsenceBtn').forEach(btn => {
-            btn.setAttribute('data-original-text', btn.textContent);
+            btn.setAttribute('data-original-text', btn.querySelector('.translatable').textContent);
           });
           
           // Initialiser la modal comme cachée
           document.getElementById('addSeanceModal').style.display = 'none';
-          
-          // Gestion des boutons de langue
-          document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-              const lang = this.getAttribute('data-lang');
-              // Rediriger avec le paramètre de langue
-              const url = new URL(window.location.href);
-              url.searchParams.set('lang', lang);
-              window.location.href = url.toString();
-            });
-          });
           
           // Gestion des absences
           document.querySelectorAll(".manageAbsenceBtn").forEach(btn => {
@@ -1138,10 +1082,11 @@
                 const isHidden = row.style.display === "none";
                 row.style.display = isHidden ? "table-row" : "none";
                 
-                const closeText = translate('close');
-                const originalText = this.getAttribute('data-original-text') || this.textContent;
+                const closeText = getTranslation('close');
+                const translatableSpan = this.querySelector('.translatable');
+                const originalText = this.getAttribute('data-original-text') || translatableSpan.textContent;
                 
-                this.textContent = isHidden ? closeText : originalText;
+                translatableSpan.textContent = isHidden ? closeText : originalText;
                 
                 // Fermer les autres tableaux d'absence ouverts
                 if (isHidden) {
@@ -1150,7 +1095,9 @@
                       otherRow.style.display = "none";
                       const otherBtn = document.querySelector('[data-seance-id="' + otherRow.id.replace('absenceTable_', '') + '"]');
                       if (otherBtn) {
-                        otherBtn.textContent = otherBtn.getAttribute('data-original-text') || otherBtn.textContent;
+                        const otherTranslatable = otherBtn.querySelector('.translatable');
+                        const otherOriginalText = otherBtn.getAttribute('data-original-text') || otherTranslatable.textContent;
+                        otherTranslatable.textContent = otherOriginalText;
                       }
                     }
                   });
@@ -1168,7 +1115,9 @@
                 row.style.display = "none";
                 const manageBtn = document.querySelector('[data-seance-id="' + seanceId + '"]');
                 if (manageBtn) {
-                  manageBtn.textContent = manageBtn.getAttribute('data-original-text') || manageBtn.textContent;
+                  const translatableSpan = manageBtn.querySelector('.translatable');
+                  const originalText = manageBtn.getAttribute('data-original-text') || translatableSpan.textContent;
+                  translatableSpan.textContent = originalText;
                 }
               }
             });
@@ -1211,7 +1160,7 @@
             
             if (!classId) {
               moduleSelect.disabled = true;
-              moduleSelect.innerHTML = '<option value="">' + translate('select_class_first') + '</option>';
+              moduleSelect.innerHTML = '<option value="">' + getTranslation('select_class_first') + '</option>';
               moduleHelp.textContent = '';
               submitBtn.disabled = true;
               return;
@@ -1228,7 +1177,7 @@
               // Ajouter l'option par défaut
               const defaultOption = document.createElement('option');
               defaultOption.value = '';
-              defaultOption.textContent = translate('choose_module');
+              defaultOption.textContent = getTranslation('choose_module');
               moduleSelect.appendChild(defaultOption);
               
               // Ajouter chaque module
@@ -1240,15 +1189,14 @@
               });
               
               // Afficher l'aide
-              moduleHelp.textContent = modules.length + ' ' + translate('modules_available');
-              moduleHelp.style.color = '#27ae60';
+              updateModuleHelpText(document.documentElement.getAttribute('lang') || 'fr');
               submitBtn.disabled = false;
             } else {
               const option = document.createElement('option');
               option.value = '';
-              option.textContent = translate('no_modules');
+              option.textContent = getTranslation('no_modules');
               moduleSelect.appendChild(option);
-              moduleHelp.textContent = translate('no_modules_configured');
+              moduleHelp.textContent = getTranslation('no_modules_configured');
               moduleHelp.style.color = '#e74c3c';
               submitBtn.disabled = true;
             }
@@ -1265,7 +1213,7 @@
             
             if (!classId || !module || !datetime) {
               e.preventDefault();
-              alert('❌ ' + translate('fill_required'));
+              alert('❌ ' + getTranslation('fill_required'));
               return false;
             }
             
@@ -1275,20 +1223,20 @@
           // Gestion AJAX pour les absences
           document.querySelectorAll('form[id^="form_"]').forEach(form => {
             form.addEventListener('submit', function(e) {
-              if (!confirm(translate('confirm_absences'))) {
+              if (!confirm(getTranslation('confirm_absences'))) {
                 e.preventDefault();
                 return false;
               }
               
               // Afficher un indicateur de chargement
               const submitBtn = this.querySelector('button[type="submit"]');
-              const originalText = submitBtn.textContent;
-              submitBtn.textContent = translate('saving');
+              const originalText = submitBtn.querySelector('.translatable').textContent;
+              submitBtn.querySelector('.translatable').textContent = getTranslation('saving');
               submitBtn.disabled = true;
               
               // Réactiver le bouton après 3 secondes (au cas où)
               setTimeout(() => {
-                submitBtn.textContent = originalText;
+                submitBtn.querySelector('.translatable').textContent = originalText;
                 submitBtn.disabled = false;
               }, 3000);
             });
@@ -1307,20 +1255,17 @@
             checkbox.addEventListener('change', function() {
               const row = this.closest('tr');
               const statusCell = row.querySelector('td:nth-child(4)');
+              const statusSpan = statusCell.querySelector('.translatable');
               
               if (this.checked) {
                 row.classList.add('absent-checked');
-                if (statusCell) {
-                  statusCell.innerHTML = '<span class="status-badge status-absent">' + 
-                    translate('absent_label') + 
-                    '</span>';
+                if (statusSpan) {
+                  statusSpan.textContent = getTranslation('absent');
                 }
               } else {
                 row.classList.remove('absent-checked');
-                if (statusCell) {
-                  statusCell.innerHTML = '<span class="status-badge status-present">' + 
-                    translate('present_label') + 
-                    '</span>';
+                if (statusSpan) {
+                  statusSpan.textContent = getTranslation('present');
                 }
               }
             });

@@ -746,7 +746,8 @@
     const message = lang === 'en' ? 'Are you sure you want to logout?' : 'Êtes-vous sûr de vouloir vous déconnecter ?';
     
     if (confirm(message)) {
-      window.location.href = '../logout.php';
+      window.location.href = '../../logout.php';
+
     }
   }
   
