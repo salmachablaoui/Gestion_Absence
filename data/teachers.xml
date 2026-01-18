@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <teachers>
     
-<teacher id="u6966b377b822d"><name>fatima zahrae</name><email>f@gamil.com</email><class>GI1</class><module>Algorithmique</module></teacher><teacher id="u696949c9b9eca"><name>said</name><email>said@gmail.com</email><class>GI2</class><module>Java</module></teacher><teacher id="u696980957af04"><name>bkas</name><email>b@gmail.com</email><class>GI2</class><module>Base de données</module></teacher></teachers>
+<teacher id="u6966b377b822d"><name>fatima zahrae</name><email>f@gamil.com</email><class>GI1</class><module>Algorithmique</module></teacher><teacher id="u696949c9b9eca"><name>said</name><email>said@gmail.com</email><class>GI2</class><module>Java</module></teacher><teacher id="u696980957af04"><name>bkas</name><email>b@gmail.com</email><class>GI2</class><module>Base de données</module></teacher><teacher id="u696cb1c501e38"><name>AGHID Khadija</name><email>khadijaaghid@gmail.com</email><class>GI1</class><module>Programmation Web</module></teacher></teachers>

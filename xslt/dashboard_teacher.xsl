@@ -497,6 +497,7 @@
         </style>
       </head>
       <body>
+      
         <div class="container">
           <!-- En-tête avec informations enseignant -->
           <div class="header">
@@ -577,7 +578,8 @@
             </div>
             
             <!-- Message d'avertissement si aucune séance -->
-            <xsl:if test="count($seances/seance[teacher_id = $teacherId]) = 0">
+            <xsl:if test="count(seances/seance[normalize-space(teacher_id) = normalize-space($teacherId)]) = 0">
+
               <div class="warning-message">
                 <p>
                   <i class="fas fa-exclamation-triangle"></i>
@@ -615,8 +617,10 @@
               </thead>
               <tbody>
                 <xsl:choose>
-                  <xsl:when test="$seances/seance[teacher_id = $teacherId]">
-                    <xsl:for-each select="$seances/seance[teacher_id = $teacherId]">
+                  <xsl:when test="seances/seance[normalize-space(teacher_id) = normalize-space($teacherId)]">
+
+                    <xsl:for-each select="seances/seance[normalize-space(teacher_id) = normalize-space($teacherId)]">
+
                       <xsl:sort select="datetime" order="descending"/>
                       
                       <xsl:variable name="currentSeanceId" select="@id"/>
