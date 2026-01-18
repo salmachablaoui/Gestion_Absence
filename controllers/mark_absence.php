@@ -13,14 +13,19 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'teacher') {
     exit;
 }
 
-$absenceManager = new AbsenceManager();
+// Définir le chemin de base ABSOLU
+$basePath = dirname(__DIR__) . '/data/';
 
-// Attacher les deux observateurs
-$studentNotifier = new StudentNotifier();
-$dashboardNotifier = new DashboardNotifier();
+$absenceManager = new AbsenceManager($basePath);
+
+// Attacher les deux observateurs avec le même chemin
+$studentNotifier = new StudentNotifier("StudentNotifier", $basePath);
+$dashboardNotifier = new DashboardNotifier("DashboardNotifier", $basePath);
 
 $absenceManager->attach($studentNotifier);
 $absenceManager->attach($dashboardNotifier);
+
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $seanceId = $_POST['seance_id'] ?? '';

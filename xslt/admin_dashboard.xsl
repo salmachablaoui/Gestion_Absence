@@ -5,79 +5,432 @@
     <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 
     <xsl:template match="/dashboard">
-        <html>
+        <html lang="fr">
         <head>
-            <title>Dashboard Admin</title>
-            <link rel="stylesheet" href="../../assets/css/style.css"/>
+            <title data-fr="Dashboard Administrateur" data-en="Admin Dashboard">Dashboard Administrateur</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                }
+                
+                body {
+                    background-color: #f5f7fa;
+                    color: #333;
+                    line-height: 1.6;
+                    padding: 20px;
+                }
+                
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    background: white;
+                    border-radius: 12px;
+                    box-shadow: 0 5px 20px rgba(0, 30, 84, 0.1);
+                    padding: 30px;
+                }
+                
+                h1 {
+                    color: #1a365d;
+                    border-bottom: 3px solid #2c5282;
+                    padding-bottom: 15px;
+                    margin-bottom: 25px;
+                    font-size: 28px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                h2 {
+                    color: #2c5282;
+                    margin: 30px 0 15px 0;
+                    padding-left: 10px;
+                    border-left: 4px solid #4299e1;
+                    font-size: 22px;
+                }
+                
+                .header-actions {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 30px;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                }
+                
+                .language-switcher {
+                    display: flex;
+                    gap: 10px;
+                    margin-bottom: 0;
+                }
+                
+                .lang-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 10px 15px;
+                    background: #edf2f7;
+                    color: #4a5568;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                    border: 2px solid transparent;
+                    cursor: pointer;
+                }
+                
+                .lang-btn.active {
+                    background: linear-gradient(135deg, #1a365d, #2c5282);
+                    color: white;
+                    border-color: #2c5282;
+                }
+                
+                .lang-btn:hover:not(.active) {
+                    background: #e2e8f0;
+                    transform: translateY(-1px);
+                }
+                
+                .actions {
+                    display: flex;
+                    gap: 15px;
+                    margin-bottom: 0;
+                    flex-wrap: wrap;
+                }
+                
+                .btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 12px 20px;
+                    background: linear-gradient(135deg, #1a365d, #2c5282);
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                    border: none;
+                    cursor: pointer;
+                }
+                
+                .btn:hover {
+                    background: linear-gradient(135deg, #2c5282, #3182ce);
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(44, 82, 130, 0.2);
+                }
+                
+                .logout {
+                    background: linear-gradient(135deg, #742a2a, #c53030);
+                }
+                
+                .logout:hover {
+                    background: linear-gradient(135deg, #c53030, #e53e3e);
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                }
+                
+                th {
+                    background: linear-gradient(to right, #1a365d, #2c5282);
+                    color: white;
+                    font-weight: 600;
+                    padding: 15px;
+                    text-align: left;
+                    font-size: 15px;
+                }
+                
+                td {
+                    padding: 14px 15px;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                
+                tr:nth-child(even) {
+                    background-color: #f7fafc;
+                }
+                
+                tr:hover {
+                    background-color: #ebf8ff;
+                }
+                
+                .edit, .delete {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    text-decoration: none;
+                    font-size: 16px;
+                    margin: 0 5px;
+                    transition: all 0.2s ease;
+                }
+                
+                .edit {
+                    background-color: #e6fffa;
+                    color: #00a78e;
+                    border: 1px solid #00a78e;
+                }
+                
+                .edit:hover {
+                    background-color: #00a78e;
+                    color: white;
+                }
+                
+                .delete {
+                    background-color: #fff5f5;
+                    color: #e53e3e;
+                    border: 1px solid #e53e3e;
+                }
+                
+                .delete:hover {
+                    background-color: #e53e3e;
+                    color: white;
+                }
+                
+                @media (max-width: 768px) {
+                    .container {
+                        padding: 15px;
+                    }
+                    
+                    .header-actions {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+                    
+                    .language-switcher {
+                        order: -1;
+                        justify-content: center;
+                    }
+                    
+                    .actions {
+                        flex-direction: column;
+                        width: 100%;
+                    }
+                    
+                    .btn {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                    
+                    table {
+                        display: block;
+                        overflow-x: auto;
+                    }
+                    
+                    th, td {
+                        padding: 10px;
+                        font-size: 14px;
+                    }
+                }
+            </style>
         </head>
         <body>
             <div class="container">
-                <h1>🛠 Dashboard Admin</h1>
+                <h1>
+                    <span class="translatable" data-fr="🛠 Dashboard Administrateur" data-en="🛠 Admin Dashboard">🛠 Dashboard Administrateur</span>
+                    <div class="language-switcher">
+                        <button class="lang-btn active" onclick="switchLanguage('fr')">
+                            <span style="font-size:18px">🇫🇷</span> <span class="translatable" data-fr="FR" data-en="FR">FR</span>
+                        </button>
+                        <button class="lang-btn" onclick="switchLanguage('en')">
+                            <span style="font-size:18px">🇬🇧</span> <span class="translatable" data-fr="EN" data-en="EN">EN</span>
+                        </button>
+                    </div>
+                </h1>
 
                 <!-- Boutons Ajouter / Déconnexion -->
-                <div class="actions">
-                    <a href="students/add.php" class="btn">➕ Ajouter Étudiant</a>
-                    <a href="teachers/add.php" class="btn">➕ Ajouter Enseignant</a>
-                    <a href="../../logout.php" class="btn logout">🔒 Déconnexion</a>
+                <div class="header-actions">
+                    <div class="actions">
+                        <a href="students/add.php" class="btn">
+                            <span style="font-size:18px">➕</span> <span class="btn-text translatable" data-fr="Ajouter Étudiant" data-en="Add Student">Ajouter Étudiant</span>
+                        </a>
+                        <a href="teachers/add.php" class="btn">
+                            <span style="font-size:18px">➕</span> <span class="btn-text translatable" data-fr="Ajouter Enseignant" data-en="Add Teacher">Ajouter Enseignant</span>
+                        </a>
+                        <a href="../../logout.php" class="btn logout">
+                            <span style="font-size:18px">🔒</span> <span class="btn-text translatable" data-fr="Déconnexion" data-en="Logout">Déconnexion</span>
+                        </a>
+                    </div>
                 </div>
 
                 <!-- ================= ÉTUDIANTS ================= -->
-                <h2>👨‍🎓 Étudiants</h2>
-                <table border="1">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Email</th>
-                        <th>Classe</th>
-                        <th>Actions</th>
-                    </tr>
-
-                    <xsl:for-each select="students/student">
+                <h2 class="translatable" data-fr="👨‍🎓 Étudiants" data-en="👨‍🎓 Students">👨‍🎓 Étudiants</h2>
+                <table>
+                    <thead>
                         <tr>
-                            <td><xsl:value-of select="@id"/></td>
-                            <td><xsl:value-of select="name"/></td>
-                            <td><xsl:value-of select="email"/></td>
-                            <td><xsl:value-of select="class"/></td>
-                            <td>
-                                <a href="students/edit.php?id={@id}" class="edit">✏</a>
-                                <a href="students/delete.php?id={@id}"
-                                   class="delete"
-                                   onclick="return confirm('Supprimer cet étudiant ?')">🗑</a>
-                            </td>
+                            <th><span class="translatable" data-fr="ID" data-en="ID">ID</span></th>
+                            <th><span class="translatable" data-fr="Nom" data-en="Name">Nom</span></th>
+                            <th><span class="translatable" data-fr="Email" data-en="Email">Email</span></th>
+                            <th><span class="translatable" data-fr="Classe" data-en="Class">Classe</span></th>
+                            <th><span class="translatable" data-fr="Actions" data-en="Actions">Actions</span></th>
                         </tr>
-                    </xsl:for-each>
+                    </thead>
+                    <tbody>
+                        <xsl:for-each select="students/student">
+                            <tr>
+                                <td><xsl:value-of select="@id"/></td>
+                                <td><xsl:value-of select="name"/></td>
+                                <td><xsl:value-of select="email"/></td>
+                                <td><xsl:value-of select="class"/></td>
+                                <td>
+                                    <a href="students/edit.php?id={@id}" class="edit" title="Modifier" data-fr-title="Modifier" data-en-title="Edit">
+                                        <span class="translatable" data-fr="✏" data-en="✏">✏</span>
+                                    </a>
+                                    <a href="students/delete.php?id={@id}"
+                                       class="delete"
+                                       data-fr-confirm="Êtes-vous sûr de vouloir supprimer cet étudiant ?"
+                                       data-en-confirm="Are you sure you want to delete this student?"
+                                       title="Supprimer"
+                                       data-fr-title="Supprimer"
+                                       data-en-title="Delete">
+                                        <span class="translatable" data-fr="🗑" data-en="🗑">🗑</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </xsl:for-each>
+                    </tbody>
                 </table>
 
                 <!-- ================= ENSEIGNANTS ================= -->
-                <h2>👨‍🏫 Enseignants</h2>
-                <table border="1">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Email</th>
-                        <th>Classe</th>
-                        <th>Module</th>
-                        <th>Actions</th>
-                    </tr>
-
-                    <xsl:for-each select="teachers/teacher">
+                <h2 class="translatable" data-fr="👨‍🏫 Enseignants" data-en="👨‍🏫 Teachers">👨‍🏫 Enseignants</h2>
+                <table>
+                    <thead>
                         <tr>
-                            <td><xsl:value-of select="@id"/></td>
-                            <td><xsl:value-of select="name"/></td>
-                            <td><xsl:value-of select="email"/></td>
-                            <td><xsl:value-of select="class"/></td>
-                            <td><xsl:value-of select="module"/></td>
-                            <td>
-                                <a href="teachers/edit.php?id={@id}" class="edit">✏</a>
-                                <a href="teachers/delete.php?id={@id}"
-                                   class="delete"
-                                   onclick="return confirm('Supprimer cet enseignant ?')">🗑</a>
-                            </td>
+                            <th><span class="translatable" data-fr="ID" data-en="ID">ID</span></th>
+                            <th><span class="translatable" data-fr="Nom" data-en="Name">Nom</span></th>
+                            <th><span class="translatable" data-fr="Email" data-en="Email">Email</span></th>
+                            <th><span class="translatable" data-fr="Classe" data-en="Class">Classe</span></th>
+                            <th><span class="translatable" data-fr="Module" data-en="Module">Module</span></th>
+                            <th><span class="translatable" data-fr="Actions" data-en="Actions">Actions</span></th>
                         </tr>
-                    </xsl:for-each>
+                    </thead>
+                    <tbody>
+                        <xsl:for-each select="teachers/teacher">
+                            <tr>
+                                <td><xsl:value-of select="@id"/></td>
+                                <td><xsl:value-of select="name"/></td>
+                                <td><xsl:value-of select="email"/></td>
+                                <td><xsl:value-of select="class"/></td>
+                                <td><xsl:value-of select="module"/></td>
+                                <td>
+                                    <a href="teachers/edit.php?id={@id}" class="edit" title="Modifier" data-fr-title="Modifier" data-en-title="Edit">
+                                        <span class="translatable" data-fr="✏" data-en="✏">✏</span>
+                                    </a>
+                                    <a href="teachers/delete.php?id={@id}"
+                                       class="delete"
+                                       data-fr-confirm="Êtes-vous sûr de vouloir supprimer cet enseignant ?"
+                                       data-en-confirm="Are you sure you want to delete this teacher?"
+                                       title="Supprimer"
+                                       data-fr-title="Supprimer"
+                                       data-en-title="Delete">
+                                        <span class="translatable" data-fr="🗑" data-en="🗑">🗑</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </xsl:for-each>
+                    </tbody>
                 </table>
 
             </div>
+            
+            <script>
+                // Fonction de changement de langue
+                function switchLanguage(lang) {
+                    // Mettre à jour les boutons de langue
+                    document.querySelectorAll('.lang-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    document.querySelectorAll(`.lang-btn[onclick="switchLanguage('${lang}')"]`).forEach(btn => {
+                        btn.classList.add('active');
+                    });
+                    
+                    // Mettre à jour l'attribut lang de l'html
+                    document.documentElement.lang = lang;
+                    
+                    // Mettre à jour le titre de la page
+                    const title = document.querySelector('title');
+                    if (title.dataset[lang]) {
+                        title.textContent = title.dataset[lang];
+                    }
+                    
+                    // Traduire tous les éléments avec la classe "translatable"
+                    document.querySelectorAll('.translatable').forEach(element => {
+                        const text = element.getAttribute(`data-${lang}`);
+                        if (text) {
+                            element.textContent = text;
+                        }
+                    });
+                    
+                    // Mettre à jour les attributs title
+                    document.querySelectorAll('[data-fr-title]').forEach(element => {
+                        const titleText = element.getAttribute(`data-${lang}-title`);
+                        if (titleText) {
+                            element.title = titleText;
+                        }
+                    });
+                    
+                    // Stocker la préférence de langue
+                    localStorage.setItem('dashboard-language', lang);
+                }
+                
+                // Fonction pour gérer la suppression avec confirmation
+                function confirmDelete(event, element) {
+                    event.preventDefault();
+                    
+                    const lang = localStorage.getItem('dashboard-language') || 'fr';
+                    const confirmAttr = element.getAttribute(`data-${lang}-confirm`);
+                    let message = '';
+                    
+                    if (confirmAttr) {
+                        message = confirmAttr;
+                    } else {
+                        message = lang === 'en' 
+                            ? 'Are you sure you want to delete this item?' 
+                            : 'Êtes-vous sûr de vouloir effectuer cette suppression ?';
+                    }
+                    
+                    if (confirm(message)) {
+                        window.location.href = element.href;
+                    }
+                    
+                    return false;
+                }
+                
+                // Initialiser la langue au chargement
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Récupérer la langue sauvegardée ou utiliser le français par défaut
+                    const savedLang = localStorage.getItem('dashboard-language') || 'fr';
+                    if (savedLang !== 'fr') {
+                        switchLanguage(savedLang);
+                    }
+                    
+                    // Configurer les événements de suppression
+                    document.querySelectorAll('a.delete').forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            return confirmDelete(e, this);
+                        });
+                        
+                        // Supprimer l'attribut onclick existant
+                        link.removeAttribute('onclick');
+                    });
+                    
+                    // Configurer les événements des boutons de langue
+                    document.querySelectorAll('.lang-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const lang = this.getAttribute('onclick').includes("'fr'") ? 'fr' : 'en';
+                            switchLanguage(lang);
+                        });
+                    });
+                });
+            </script>
         </body>
         </html>
     </xsl:template>

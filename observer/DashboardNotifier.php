@@ -4,96 +4,120 @@ require_once 'ObserverInterface.php';
 
 class DashboardNotifier implements ObserverInterface {
     private $name;
-    private $notificationsFile;
+    private $basePath;
     
-    public function __construct($name = "DashboardNotifier") {
+    public function __construct($name = "DashboardNotifier", $basePath = null) {
         $this->name = $name;
-        $this->notificationsFile = '../data/student_notifications.xml';
+        // Utiliser le même système de chemin que AbsenceManager
+        $this->basePath = $basePath ?: $this->determineBasePath();
+    }
+    
+    private function determineBasePath() {
+        $possiblePaths = [
+            __DIR__ . '/../data/',
+            dirname(__DIR__) . '/data/',
+            realpath(__DIR__ . '/../../data/'),
+            'C:/xampp1/htdocs/Gestion_Absence/data/'
+        ];
+        
+        foreach ($possiblePaths as $path) {
+            if (is_dir($path)) {
+                return $path;
+            }
+        }
+        
+        return dirname(__DIR__) . '/data/';
     }
     
     public function update($absenceData) {
-        // Sauvegarder la notification pour l'étudiant
-        $this->saveNotification($absenceData);
+        // Utiliser le chemin de base des données d'absence si fourni
+        if (isset($absenceData['base_path'])) {
+            $this->basePath = $absenceData['base_path'];
+        }
         
-        // Mettre à jour le compteur d'absences dans students.xml
-        $this->updateStudentAbsenceCount($absenceData['student_id']);
+        // Sauvegarder la notification pour l'étudiant
+        $saveResult = $this->saveNotification($absenceData);
+        
+        // Mettre à jour le compteur d'absences
+        $updateResult = $this->updateStudentAbsenceCount($absenceData['student_id']);
         
         return [
-            'success' => true,
+            'success' => $saveResult && $updateResult,
             'message' => 'Notification enregistrée dans le dashboard étudiant',
             'type' => 'dashboard',
-            'student_id' => $absenceData['student_id']
+            'student_id' => $absenceData['student_id'],
+            'save_result' => $saveResult,
+            'update_result' => $updateResult
         ];
     }
     
     /**
-     * Sauvegarder la notification pour l'affichage dans le dashboard
+     * Sauvegarder la notification
      */
     private function saveNotification($data) {
-        // Créer le répertoire data s'il n'existe pas
-        $dataDir = dirname($this->notificationsFile);
+        $notificationsFile = $this->basePath . 'student_notifications.xml';
+        
+        // Créer le répertoire s'il n'existe pas
+        $dataDir = dirname($notificationsFile);
         if (!is_dir($dataDir)) {
             mkdir($dataDir, 0755, true);
         }
         
         // Charger ou créer le fichier de notifications
-        if (file_exists($this->notificationsFile)) {
-            $xml = simplexml_load_file($this->notificationsFile);
+        if (file_exists($notificationsFile)) {
+            $xml = simplexml_load_file($notificationsFile);
+            if ($xml === false) {
+                $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><notifications></notifications>');
+            }
         } else {
             $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><notifications></notifications>');
         }
         
-        // Vérifier si une notification existe déjà pour cette séance/étudiant
-        $alreadyExists = false;
-        foreach ($xml->notification as $notification) {
-            if ((string)$notification->student_id === $data['student_id'] && 
-                (string)$notification->seance_id === $data['seance_id']) {
-                $alreadyExists = true;
-                break;
-            }
-        }
+        // Ajouter une nouvelle notification
+        $notification = $xml->addChild('notification');
+        $notification->addChild('id', 'NOTIF' . uniqid());
+        $notification->addChild('student_id', $data['student_id']);
+        $notification->addChild('student_name', $data['student_name']);
+        $notification->addChild('seance_id', $data['seance_id']);
+        $notification->addChild('seance_module', $data['seance_module']);
+        $notification->addChild('seance_datetime', $data['seance_datetime']);
+        $notification->addChild('teacher_id', $data['teacher_id'] ?? '');
+        $notification->addChild('type', 'absence');
         
-        if (!$alreadyExists) {
-            // Ajouter une nouvelle notification
-            $notification = $xml->addChild('notification');
-            $notification->addChild('id', 'NOTIF' . uniqid());
-            $notification->addChild('student_id', $data['student_id']);
-            $notification->addChild('student_name', $data['student_name']);
-            $notification->addChild('seance_id', $data['seance_id']);
-            $notification->addChild('seance_module', $data['seance_module']);
-            $notification->addChild('seance_datetime', $data['seance_datetime']);
-            $notification->addChild('teacher_id', $data['teacher_id'] ?? '');
-            $notification->addChild('type', 'absence');
-            $notification->addChild('message', 'Vous avez été marqué absent pour la séance de ' . $data['seance_module']);
-            $notification->addChild('created_at', date('Y-m-d H:i:s'));
-            $notification->addChild('read', 'false');
-            $notification->addChild('important', 'true');
-            
-            // Sauvegarder
-            $xml->asXML($this->notificationsFile);
-            
-            error_log("DashboardNotifier: Notification enregistrée pour " . $data['student_name']);
-        }
+        // Message
+        $formattedDate = date('d/m/Y H:i', strtotime($data['seance_datetime']));
+        $message = "Vous avez été marqué absent pour la séance de " . 
+                  $data['seance_module'] . " du " . $formattedDate;
         
-        return true;
+        $notification->addChild('message', $message);
+        $notification->addChild('created_at', date('Y-m-d H:i:s'));
+        $notification->addChild('date', date('Y-m-d H:i:s'));
+        $notification->addChild('read', 'false');
+        $notification->addChild('important', 'true');
+        
+        // Sauvegarder
+        return $xml->asXML($notificationsFile);
     }
     
     /**
-     * Mettre à jour le compteur d'absences de l'étudiant
+     * Mettre à jour le compteur d'absences
      */
     private function updateStudentAbsenceCount($studentId) {
-        $studentsFile = '../data/students.xml';
+        $studentsFile = $this->basePath . 'students.xml';
         
         if (!file_exists($studentsFile)) {
             return false;
         }
         
         $xml = simplexml_load_file($studentsFile);
+        if ($xml === false) {
+            return false;
+        }
         
         // Trouver l'étudiant
         foreach ($xml->student as $student) {
             if ((string)$student['id'] === $studentId) {
-                // Mettre à jour le compteur d'absences
+                // Mettre à jour le compteur
                 if (!isset($student->absence_count)) {
                     $student->addChild('absence_count', '1');
                 } else {
@@ -101,7 +125,7 @@ class DashboardNotifier implements ObserverInterface {
                     $student->absence_count = (string)($current + 1);
                 }
                 
-                // Ajouter la date de dernière absence
+                // Ajouter la date
                 if (!isset($student->last_absence)) {
                     $student->addChild('last_absence', date('Y-m-d H:i:s'));
                 } else {
@@ -109,71 +133,20 @@ class DashboardNotifier implements ObserverInterface {
                 }
                 
                 // Sauvegarder
-                $xml->asXML($studentsFile);
-                
-                error_log("DashboardNotifier: Compteur mis à jour pour étudiant " . $studentId);
-                return true;
+                return $xml->asXML($studentsFile);
             }
         }
         
         return false;
     }
     
-    public function getName() {
-        return $this->name;
-    }
+    // ... (le reste des méthodes reste inchangé)
     
     /**
-     * Récupérer les notifications non lues d'un étudiant
+     * Définir le chemin de base manuellement
      */
-    public static function getUnreadNotifications($studentId) {
-        $notificationsFile = '../data/student_notifications.xml';
-        
-        if (!file_exists($notificationsFile)) {
-            return [];
-        }
-        
-        $xml = simplexml_load_file($notificationsFile);
-        $notifications = [];
-        
-        foreach ($xml->notification as $notification) {
-            if ((string)$notification->student_id === $studentId && 
-                (string)$notification->read === 'false') {
-                $notifications[] = [
-                    'id' => (string)$notification->id,
-                    'message' => (string)$notification->message,
-                    'module' => (string)$notification->seance_module,
-                    'datetime' => (string)$notification->seance_datetime,
-                    'created_at' => (string)$notification->created_at,
-                    'important' => (string)$notification->important === 'true'
-                ];
-            }
-        }
-        
-        return $notifications;
-    }
-    
-    /**
-     * Marquer une notification comme lue
-     */
-    public static function markAsRead($notificationId) {
-        $notificationsFile = '../data/student_notifications.xml';
-        
-        if (!file_exists($notificationsFile)) {
-            return false;
-        }
-        
-        $xml = simplexml_load_file($notificationsFile);
-        
-        foreach ($xml->notification as $notification) {
-            if ((string)$notification->id === $notificationId) {
-                $notification->read = 'true';
-                $xml->asXML($notificationsFile);
-                return true;
-            }
-        }
-        
-        return false;
+    public function setBasePath($path) {
+        $this->basePath = rtrim($path, '/') . '/';
     }
 }
 ?>

@@ -4,1035 +4,778 @@
 
   <xsl:output method="html" encoding="UTF-8" indent="yes"/>
 
-  <xsl:param name="studentId"/>
-  <xsl:param name="studentEmail"/>
-
   <xsl:template match="/">
     <html lang="fr">
       <head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Dashboard Étudiant</title>
+        <title data-fr="Dashboard Étudiant | Gestion Absences" data-en="Student Dashboard | Absence Management">Dashboard Étudiant | Gestion Absences</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
         <style>
+          /* Variables de couleurs */
           :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --border-radius: 12px;
-            --box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            --transition: all 0.3s ease;
+            --primary-blue: #0a2463;
+            --secondary-blue: #1e3a8a;
+            --accent-blue: #3b82f6;
+            --light-blue: #93c5fd;
+            --light-gray: #f8fafc;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
           }
           
+          /* Reset et styles de base */
           * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
           }
           
-          body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            color: var(--dark);
-            min-height: 100vh;
-            padding: 20px;
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text-dark);
             line-height: 1.6;
           }
           
-          .container { 
-            max-width: 1400px; 
-            margin: 0 auto;
+          /* Header */
+          .header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: var(--white);
+            padding: 25px 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
           }
           
-          /* Header */
-          .header { 
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); 
-            color: white; 
-            padding: 30px 40px; 
-            border-radius: var(--border-radius); 
-            margin-bottom: 30px;
+          .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: var(--box-shadow);
+            max-width: 1400px;
+            margin: 0 auto;
           }
           
-          .header-content h1 { 
-            font-size: 2.2rem; 
-            margin-bottom: 8px; 
-            font-weight: 700;
+          .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+          }
+          
+          .header h1 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+          }
+          
+          .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 8px;
+          }
+          
+          /* Boutons d'action header */
+          .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+          }
+          
+          /* Boutons de langue */
+          .language-switcher {
+            display: flex;
+            gap: 5px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+          }
+          
+          .lang-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            transition: all 0.3s ease;
           }
           
-          .header-content p { 
-            font-size: 1.1rem; 
-            opacity: 0.9;
+          .lang-btn.active {
+            background-color: rgba(255, 255, 255, 0.25);
           }
           
-          .btn { 
-            padding: 14px 28px; 
-            background: rgba(255,255,255,0.2); 
-            color: white; 
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50px; 
-            cursor: pointer; 
-            text-decoration: none; 
-            display: inline-flex;
+          .lang-btn:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.1);
+          }
+          
+          /* Bouton Logout */
+          .logout-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: var(--transition);
+            transition: all 0.3s ease;
           }
           
-          .btn:hover { 
-            background: rgba(255,255,255,0.3);
-            border-color: rgba(255,255,255,0.5);
+          .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
             transform: translateY(-2px);
           }
           
-          /* Cards */
-          .card { 
-            background: white; 
-            border-radius: var(--border-radius); 
-            padding: 30px; 
-            margin-bottom: 25px; 
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
+          /* Onglets */
+          .tabs-container {
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0 40px;
+            max-width: 1400px;
+            margin: 0 auto;
           }
           
-          .card:hover {
-            transform: translateY(-5px);
-          }
-          
-          .card-title {
-            color: var(--dark);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 2px solid var(--light-gray);
-          }
-          
-          /* Stats Grid */
-          .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-          }
-          
-          .stat-card {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            transition: var(--transition);
-          }
-          
-          .stat-card:nth-child(2) {
-            background: linear-gradient(135deg, var(--success) 0%, #4895ef 100%);
-          }
-          
-          .stat-card:nth-child(3) {
-            background: linear-gradient(135deg, var(--warning) 0%, #f3722c 100%);
-          }
-          
-          .stat-card:hover {
-            transform: translateY(-5px);
-          }
-          
-          .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-          }
-          
-          .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
-            margin: 10px 0;
-          }
-          
-          .stat-label {
-            font-size: 0.95rem;
-            opacity: 0.9;
-          }
-          
-          /* Tabs */
           .tabs {
             display: flex;
-            background: var(--light);
-            border-radius: 50px;
-            padding: 8px;
-            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
           }
           
           .tab-btn {
-            flex: 1;
-            padding: 16px 24px;
-            border: none;
             background: none;
-            border-radius: 50px;
-            font-size: 1rem;
+            border: none;
+            padding: 20px 30px;
+            font-size: 1.1rem;
             font-weight: 600;
-            color: var(--gray);
+            color: var(--text-light);
             cursor: pointer;
-            transition: var(--transition);
+            position: relative;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
           }
           
           .tab-btn:hover {
-            color: var(--primary);
-            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary-blue);
+            background-color: #f1f5f9;
           }
           
           .tab-btn.active {
-            background: var(--primary);
-            color: white;
+            color: var(--primary-blue);
           }
           
-          /* Tab Content */
+          .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: var(--accent-blue);
+            border-radius: 2px 2px 0 0;
+          }
+          
+          /* Contenu principal */
+          .main-content {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 40px;
+          }
+          
           .tab-content {
             display: none;
+            animation: fadeIn 0.5s ease;
           }
           
           .tab-content.active {
             display: block;
-            animation: fadeIn 0.5s ease;
           }
           
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+          /* Cartes */
+          .card {
+            background-color: var(--white);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--accent-blue);
           }
           
-          /* Info Grid */
-          .info-grid {
+          .card h2 {
+            color: var(--primary-blue);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          
+          /* Profil */
+          .profile-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
           }
           
           .info-item {
-            background: var(--light);
-            padding: 22px;
-            border-radius: var(--border-radius);
-            border-left: 4px solid var(--primary);
-            transition: var(--transition);
-          }
-          
-          .info-item:hover {
-            background: white;
-            transform: translateX(8px);
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--light-blue);
           }
           
           .info-label {
-            color: var(--gray);
-            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-blue);
             margin-bottom: 8px;
-            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
           }
           
           .info-value {
-            color: var(--dark);
-            font-weight: 700;
-            font-size: 1.3rem;
-          }
-          
-          .info-id {
-            font-family: 'Courier New', monospace;
-            background: var(--dark);
-            color: var(--light);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            display: inline-block;
-            margin-top: 8px;
+            font-size: 1.2rem;
+            color: var(--text-dark);
           }
           
           /* Notifications */
+          .notifications-count {
+            background-color: var(--accent-blue);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            margin-left: 10px;
+          }
+          
           .notification-item {
-            background: linear-gradient(135deg, #fff9db 0%, #fff3bf 100%);
-            border-left: 4px solid var(--warning);
-            padding: 22px;
-            margin: 15px 0;
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            cursor: pointer;
+            background-color: #fef3c7;
+            border-left: 5px solid var(--warning);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: transform 0.2s ease;
           }
           
           .notification-item:hover {
-            transform: translateX(10px);
-            box-shadow: 0 8px 25px rgba(248, 150, 30, 0.15);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
           }
           
-          .notification-item.read {
-            opacity: 0.7;
-            background: var(--light);
-            border-left-color: var(--gray);
+          .notification-item.unread {
+            background-color: #f0f9ff;
+            border-left-color: var(--accent-blue);
           }
           
           .notification-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
           }
           
-          .notification-title {
+          .notification-module {
             font-weight: 700;
-            color: #856404;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            color: var(--primary-blue);
             font-size: 1.1rem;
           }
           
           .notification-date {
-            color: var(--gray);
-            font-size: 0.85rem;
-            background: rgba(255,255,255,0.5);
-            padding: 4px 10px;
-            border-radius: 4px;
-          }
-          
-          .notification-module {
-            display: block;
-            font-weight: 600;
-            color: var(--primary);
-            margin: 8px 0;
-            font-size: 1.05rem;
-            padding: 8px 16px;
-            background: rgba(67, 97, 238, 0.1);
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            color: var(--text-light);
+            font-size: 0.9rem;
           }
           
           .notification-message {
-            color: #856404;
-            margin: 12px 0;
+            color: var(--text-dark);
+            margin: 10px 0;
             line-height: 1.5;
-            padding: 12px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 8px;
-            border-left: 3px solid var(--warning);
           }
           
-          .notification-seance {
-            font-family: 'Courier New', monospace;
-            color: var(--gray);
-            font-size: 0.85rem;
-            margin-top: 8px;
-            padding: 6px 12px;
-            background: var(--light-gray);
-            border-radius: 4px;
+          .notification-badges {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+          }
+          
+          .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
             display: inline-block;
           }
           
-          .notification-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
+          .badge.important {
+            background-color: var(--warning);
+            color: var(--text-dark);
           }
           
-          .action-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-          }
-          
-          .mark-read-btn {
-            background: var(--success);
+          .badge.unread {
+            background-color: var(--accent-blue);
             color: white;
           }
           
-          .mark-read-btn:hover {
-            background: #3aa8d0;
-          }
-          
-          .delete-btn {
-            background: var(--danger);
-            color: white;
-          }
-          
-          .delete-btn:hover {
-            background: #d1145a;
-          }
-          
-          /* Absences Table */
-          .table-container {
-            overflow-x: auto;
-            border-radius: var(--border-radius);
+          /* Tableau des absences */
+          .absences-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
           }
           
-          table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            min-width: 600px;
-          }
-          
-          th, td { 
-            padding: 18px 20px; 
-            text-align: left; 
-            border-bottom: 1px solid var(--light-gray);
-          }
-          
-          th { 
-            background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%); 
-            color: var(--dark);
-            font-weight: 700;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          
-          tr {
-            transition: var(--transition);
-          }
-          
-          tr:hover {
-            background: rgba(67, 97, 238, 0.05);
-          }
-          
-          .status-badge {
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-          }
-          
-          .status-absent {
-            background: rgba(247, 37, 133, 0.1);
-            color: var(--danger);
-          }
-          
-          .status-present {
-            background: rgba(76, 201, 240, 0.1);
-            color: var(--success);
-          }
-          
-          .module-cell {
+          .absences-table th {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
             font-weight: 600;
-            color: var(--primary);
-            position: relative;
           }
           
-          .module-cell::before {
-            content: "📚";
-            margin-right: 8px;
+          .absences-table td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #e2e8f0;
           }
           
-          .date-cell {
-            position: relative;
-            font-weight: 500;
+          .absences-table tr:last-child td {
+            border-bottom: none;
           }
           
-          .date-cell::before {
-            content: "📅";
-            margin-right: 8px;
+          .absences-table tr:hover {
+            background-color: #f8fafc;
           }
           
-          .time-cell::before {
-            content: "🕒";
-            margin-right: 8px;
+          /* Stats */
+          .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
           }
           
-          /* No Data */
-          .no-data {
+          .stat-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            transition: transform 0.3s ease;
+          }
+          
+          .stat-card:hover {
+            transform: translateY(-5px);
+          }
+          
+          .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin: 10px 0;
+          }
+          
+          .stat-label {
+            color: var(--text-light);
+            font-size: 1rem;
+            font-weight: 600;
+          }
+          
+          /* Messages vides */
+          .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: var(--gray);
+            color: var(--text-light);
           }
           
-          .no-data-icon {
+          .empty-state i {
             font-size: 4rem;
+            color: #cbd5e1;
             margin-bottom: 20px;
-            opacity: 0.3;
           }
           
-          .no-data h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: var(--dark);
+          .empty-state p {
+            font-size: 1.2rem;
           }
           
           /* Footer */
           .footer {
             text-align: center;
-            margin-top: 60px;
             padding: 25px;
-            color: var(--gray);
-            border-top: 1px solid var(--light-gray);
-          }
-          
-          /* Badge */
-          .badge {
-            background: var(--danger);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-left: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 24px;
-            height: 24px;
-          }
-          
-          /* Summary Card */
-          .summary-card {
-            background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            margin-top: 30px;
-          }
-          
-          .summary-title {
-            color: var(--dark);
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 50px;
+            background-color: var(--white);
             display: flex;
+            justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+          }
+          
+          .footer-content {
+            flex: 1;
+          }
+          
+          .footer-lang {
+            display: flex;
             gap: 10px;
+          }
+          
+          /* Animations */
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
           }
           
           /* Responsive */
           @media (max-width: 768px) {
-            .header {
+            .header-content {
               flex-direction: column;
+              align-items: flex-start;
               gap: 20px;
-              text-align: center;
+            }
+            
+            .header-actions {
+              flex-direction: column;
+              width: 100%;
+              gap: 10px;
+            }
+            
+            .language-switcher {
+              order: 1;
+              width: 100%;
+              justify-content: center;
+            }
+            
+            .logout-btn {
+              order: 2;
+              width: 100%;
+              justify-content: center;
             }
             
             .tabs {
+              overflow-x: auto;
+            }
+            
+            .tab-btn {
+              padding: 15px 20px;
+              white-space: nowrap;
+            }
+            
+            .main-content {
+              padding: 0 20px;
+            }
+            
+            .profile-info {
+              grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+              grid-template-columns: 1fr;
+            }
+            
+            .footer {
               flex-direction: column;
+              gap: 15px;
             }
             
-            .stats-grid {
-              grid-template-columns: 1fr;
-            }
-            
-            .info-grid {
-              grid-template-columns: 1fr;
-            }
-            
-            table {
-              min-width: 500px;
-            }
-            
-            th, td {
-              padding: 12px 15px;
+            .footer-lang {
+              justify-content: center;
             }
           }
         </style>
       </head>
       <body>
-        <div class="container">
-          <!-- En-tête -->
-          <div class="header">
-            <div class="header-content">
-              <h1><i class="fas fa-graduation-cap"></i> Dashboard Étudiant</h1>
-              <p>Bienvenue, <strong><xsl:value-of select="dashboard/student/name"/></strong></p>
+        <!-- Header avec Logout et traduction -->
+        <div class="header">
+          <div class="header-content">
+            <div>
+              <h1><i class="fas fa-user-graduate"></i> <span class="translatable" data-fr="Dashboard Étudiant" data-en="Student Dashboard">Dashboard Étudiant</span></h1>
+              <p><span class="translatable" data-fr="Bienvenue," data-en="Welcome,">Bienvenue,</span> <strong><xsl:value-of select="dashboard/student/name"/></strong></p>
             </div>
-            <a href="../../logout.php" class="btn">
-              <i class="fas fa-sign-out-alt"></i> Déconnexion
-            </a>
-          </div>
-
-          <!-- Statistiques -->
-          <div class="card">
-            <h2 class="card-title"><i class="fas fa-chart-bar"></i> Vue d'ensemble</h2>
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-calendar-times"></i></div>
-                <div class="stat-number"><xsl:value-of select="dashboard/statistics/absences"/></div>
-                <div class="stat-label">Absences totales</div>
+            <div class="header-actions">
+              <div class="language-switcher">
+                <button class="lang-btn active" onclick="switchLanguage('fr')" title="Français">
+                  <i class="fas fa-flag"></i> <span class="translatable" data-fr="FR" data-en="FR">FR</span>
+                </button>
+                <button class="lang-btn" onclick="switchLanguage('en')" title="English">
+                  <i class="fas fa-flag-usa"></i> <span class="translatable" data-fr="EN" data-en="EN">EN</span>
+                </button>
               </div>
-              <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-bell"></i></div>
-                <div class="stat-number"><xsl:value-of select="dashboard/statistics/notifications"/></div>
-                <div class="stat-label">Notifications</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-icon">
-                  <xsl:choose>
-                    <xsl:when test="dashboard/statistics/absences = 0">
-                      <i class="fas fa-check-circle"></i>
-                    </xsl:when>
-                    <xsl:when test="dashboard/statistics/absences &lt;= 3">
-                      <i class="fas fa-exclamation-triangle"></i>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <i class="fas fa-times-circle"></i>
-                    </xsl:otherwise>
-                  </xsl:choose>
-                </div>
-                <div class="stat-number">
-                  <xsl:choose>
-                    <xsl:when test="dashboard/statistics/absences = 0">✓</xsl:when>
-                    <xsl:when test="dashboard/statistics/absences &lt;= 3">⚠️</xsl:when>
-                    <xsl:otherwise>❌</xsl:otherwise>
-                  </xsl:choose>
-                </div>
-                <div class="stat-label">Statut d'assiduité</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Navigation par onglets -->
-          <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('profile')">
-              <i class="fas fa-user-circle"></i> Profil
-            </button>
-            <button class="tab-btn" onclick="showTab('notifications')">
-              <i class="fas fa-bell"></i> Notifications
-              <xsl:if test="dashboard/statistics/notifications > 0">
-                <span class="badge"><xsl:value-of select="dashboard/statistics/notifications"/></span>
-              </xsl:if>
-            </button>
-            <button class="tab-btn" onclick="showTab('absences')">
-              <i class="fas fa-calendar-alt"></i> Absences
-              <xsl:if test="dashboard/statistics/absences > 0">
-                <span class="badge"><xsl:value-of select="dashboard/statistics/absences"/></span>
-              </xsl:if>
-            </button>
-          </div>
-
-          <!-- Onglet Profil -->
-          <div id="profile" class="tab-content active">
-            <div class="card">
-              <h2 class="card-title"><i class="fas fa-id-card"></i> Informations personnelles</h2>
-              <div class="info-grid">
-                <div class="info-item">
-                  <div class="info-label">Nom complet</div>
-                  <div class="info-value"><xsl:value-of select="dashboard/student/name"/></div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Email académique</div>
-                  <div class="info-value"><xsl:value-of select="dashboard/student/email"/></div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Classe / Groupe</div>
-                  <div class="info-value"><xsl:value-of select="dashboard/student/class"/></div>
-                </div>
-                <div class="info-item">
-                  <div class="info-label">Identifiant unique</div>
-                  <div class="info-value">
-                    <div class="info-id"><xsl:value-of select="dashboard/student/id"/></div>
-                  </div>
-                </div>
-              </div>
-              
-              
-            </div>
-          </div>
-
-          <!-- Onglet Notifications -->
-          <div id="notifications" class="tab-content">
-            <div class="card">
-              <h2 class="card-title"><i class="fas fa-bell"></i> Centre de notifications</h2>
-              
-              <xsl:choose>
-                <xsl:when test="dashboard/statistics/notifications > 0">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--light-gray);">
-                    <div style="font-weight: 600; color: var(--dark);">
-                      <xsl:value-of select="dashboard/statistics/notifications"/> notification(s) non lue(s)
-                    </div>
-                    <button onclick="markAllAsRead()" class="action-btn mark-read-btn">
-                      <i class="fas fa-check-double"></i> Tout marquer comme lu
-                    </button>
-                  </div>
-                  
-                  <div id="notificationsList">
-                    <xsl:for-each select="dashboard/notifications/notification">
-                      <xsl:sort select="date" order="descending"/>
-                      
-                      <!-- Extraction intelligente du module depuis le message -->
-                      <xsl:variable name="messageText" select="message"/>
-                      <xsl:variable name="moduleName">
-                        <xsl:choose>
-                          <!-- Chercher le module depuis les absences correspondantes -->
-                          <xsl:when test="contains($messageText, 'SE696bc691f1d41')">Java</xsl:when>
-                          <xsl:when test="contains($messageText, 'SE696bbd4a479f3')">Java</xsl:when>
-                          <xsl:when test="contains($messageText, 'SE696bc139c6231')">Systèmes</xsl:when>
-                          <xsl:when test="contains($messageText, 'SE696bbbdc134a8')">Systèmes</xsl:when>
-                          <xsl:otherwise>
-                            <!-- Par défaut, utiliser le module de l'étudiant -->
-                            <xsl:value-of select="dashboard/student/module"/>
-                          </xsl:otherwise>
-                        </xsl:choose>
-                      </xsl:variable>
-                      
-                      <!-- Extraction du code de séance -->
-                      <xsl:variable name="seanceCode">
-                        <xsl:choose>
-                          <xsl:when test="contains($messageText, 'SE')">
-                            <xsl:value-of select="substring(substring-after($messageText, 'SE'), 1, 13)"/>
-                          </xsl:when>
-                          <xsl:otherwise>Inconnue</xsl:otherwise>
-                        </xsl:choose>
-                      </xsl:variable>
-                      
-                      <!-- Date formatée -->
-                      <xsl:variable name="formattedDate">
-                        <xsl:value-of select="substring(date, 1, 10)"/>
-                      </xsl:variable>
-                      
-                      <div class="notification-item" data-id="{position()}">
-                        <div class="notification-header">
-                          <div class="notification-title">
-                            <i class="fas fa-exclamation-circle"></i> Notification d'absence
-                          </div>
-                          <div class="notification-date">
-                            <xsl:value-of select="$formattedDate"/>
-                          </div>
-                        </div>
-                        
-                        <div class="notification-module">
-                          <i class="fas fa-book"></i> Module: <strong><xsl:value-of select="$moduleName"/></strong>
-                        </div>
-                        
-                        <div class="notification-message">
-                          <strong><i class="fas fa-info-circle"></i> Détails :</strong><br/>
-                          <xsl:value-of select="$messageText"/>
-                        </div>
-                        
-                        <xsl:if test="$seanceCode != 'Inconnue'">
-                          <div class="notification-seance">
-                            <i class="fas fa-fingerprint"></i> Code séance: SE<xsl:value-of select="$seanceCode"/>
-                          </div>
-                        </xsl:if>
-                        
-                        <div class="notification-actions">
-                          <button onclick="markAsRead(this)" class="action-btn mark-read-btn">
-                            <i class="fas fa-check"></i> Marquer comme lu
-                          </button>
-                          <button onclick="deleteNotification(this)" class="action-btn delete-btn">
-                            <i class="fas fa-trash"></i> Supprimer
-                          </button>
-                        </div>
-                      </div>
-                    </xsl:for-each>
-                  </div>
-                  
-                  <div class="summary-card" style="margin-top: 30px;">
-                    <h3 class="summary-title"><i class="fas fa-info-circle"></i> Informations sur les notifications</h3>
-                    <p>Les notifications sont automatiquement générées lorsque vos enseignants enregistrent vos absences.</p>
-                    
-                    <!-- Statistiques des notifications -->
-                    <div style="margin-top: 15px; padding: 15px; background: rgba(67, 97, 238, 0.05); border-radius: 8px;">
-                      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <div>
-                          <div style="color: var(--gray); font-size: 0.9rem;">Total notifications</div>
-                          <div style="font-size: 1.5rem; font-weight: 700; color: var(--dark);">
-                            <xsl:value-of select="dashboard/statistics/notifications"/>
-                          </div>
-                        </div>
-                        <div>
-                          <div style="color: var(--gray); font-size: 0.9rem;">Dernière notification</div>
-                          <div style="font-size: 1rem; font-weight: 600; color: var(--dark);">
-                            <xsl:value-of select="dashboard/notifications/notification[1]/date"/>
-                          </div>
-                        </div>
-                        <div>
-                          <div style="color: var(--gray); font-size: 0.9rem;">Module concerné</div>
-                          <div style="font-size: 1rem; font-weight: 600; color: var(--primary);">
-                            <xsl:value-of select="dashboard/student/module"/>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </xsl:when>
-                
-                <xsl:otherwise>
-                  <div class="no-data">
-                    <div class="no-data-icon"><i class="far fa-bell-slash"></i></div>
-                    <h3>Aucune notification</h3>
-                    <p>Vous n'avez aucune notification non lue.</p>
-                    <p style="margin-top: 10px; font-size: 0.9rem; color: var(--gray);">
-                      Les notifications concernant vos absences apparaîtront ici automatiquement.
-                    </p>
-                  </div>
-                </xsl:otherwise>
-              </xsl:choose>
-            </div>
-          </div>
-
-          <!-- Onglet Absences -->
-          <div id="absences" class="tab-content">
-            <div class="card">
-              <h2 class="card-title"><i class="fas fa-calendar-times"></i> Historique des absences</h2>
-              
-              <xsl:choose>
-                <xsl:when test="dashboard/statistics/absences > 0">
-                  <!-- Recherche -->
-                  <div style="position: relative; margin-bottom: 20px;">
-                    <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--gray);"></i>
-                    <input type="text" id="searchAbsences" placeholder="Rechercher par module..." 
-                           style="width: 100%; padding: 12px 15px 12px 45px; border: 2px solid var(--light-gray); border-radius: 50px; font-size: 1rem; transition: var(--transition);"/>
-                  </div>
-                  
-                  <div class="table-container">
-                    <table id="absencesTable">
-                      <thead>
-                        <tr>
-                          <th><i class="fas fa-calendar"></i> Date</th>
-                          <th><i class="fas fa-clock"></i> Heure</th>
-                          <th><i class="fas fa-book"></i> Module</th>
-                          <th><i class="fas fa-info-circle"></i> Statut</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <xsl:for-each select="dashboard/absences/absence">
-                          <xsl:sort select="date" order="descending"/>
-                          <tr data-module="{module}">
-                            <td class="date-cell"><xsl:value-of select="date"/></td>
-                            <td class="time-cell"><xsl:value-of select="hours"/></td>
-                            <td class="module-cell"><xsl:value-of select="module"/></td>
-                            <td>
-                              <xsl:choose>
-                                <xsl:when test="status = 'Absent'">
-                                  <span class="status-badge status-absent">
-                                    <i class="fas fa-times-circle"></i> Absent
-                                  </span>
-                                </xsl:when>
-                                <xsl:otherwise>
-                                  <span class="status-badge status-present">
-                                    <i class="fas fa-check-circle"></i> <xsl:value-of select="status"/>
-                                  </span>
-                                </xsl:otherwise>
-                              </xsl:choose>
-                            </td>
-                          </tr>
-                        </xsl:for-each>
-                      </tbody>
-                    </table>
-                  </div>
-                  
-                  <!-- Résumé des absences -->
-                  <div class="summary-card">
-                    <h3 class="summary-title"><i class="fas fa-chart-line"></i> Analyse des absences</h3>
-                    
-                    <!-- Calcul des statistiques par module -->
-                    <xsl:variable name="absencesList" select="dashboard/absences/absence"/>
-                    <xsl:variable name="javaAbsences" select="count($absencesList[module='Java'])"/>
-                    <xsl:variable name="systemesAbsences" select="count($absencesList[module='Systèmes'])"/>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px;">
-                      <div>
-                        <div style="color: var(--gray); font-size: 0.9rem; margin-bottom: 5px;">Total des absences</div>
-                        <div style="font-size: 2rem; font-weight: 800; color: var(--dark);">
-                          <xsl:value-of select="dashboard/statistics/absences"/>
-                        </div>
-                      </div>
-                      
-                    
-                      
-                      
-                      
-                      <div>
-                        <div style="color: var(--gray); font-size: 0.9rem; margin-bottom: 5px;">Dernière absence</div>
-                        <div style="font-size: 1rem; font-weight: 600; color: var(--dark);">
-                          <xsl:value-of select="$absencesList[1]/date"/>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <!-- Recommandation -->
-                   
-                  </div>
-                </xsl:when>
-                
-                <xsl:otherwise>
-                  <div class="no-data">
-                    <div class="no-data-icon"><i class="far fa-calendar-check"></i></div>
-                    <h3>Aucune absence enregistrée</h3>
-                    <p>Votre historique d'absences apparaîtra ici.</p>
-                    <p style="margin-top: 10px; font-size: 0.9rem; color: var(--gray);">
-                      Félicitations pour votre parfaite assiduité !
-                    </p>
-                  </div>
-                </xsl:otherwise>
-              </xsl:choose>
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="footer">
-            <p>© 2026 Gestion Absence - Plateforme de suivi académique</p>
-            <p style="margin-top: 8px; font-size: 0.85rem; color: var(--gray);">
-              Connecté en tant que : <span style="font-weight: 600;"><xsl:value-of select="dashboard/student/email"/></span>
-            </p>
-            <div style="font-family: 'Courier New', monospace; font-size: 0.8rem; color: #adb5bd; margin-top: 10px;">
-              Session ID: <xsl:value-of select="$studentId"/>
+              <button class="logout-btn" onclick="logout()" data-fr="Déconnexion" data-en="Logout">
+                <i class="fas fa-sign-out-alt"></i> <span class="logout-text translatable" data-fr="Déconnexion" data-en="Logout">Déconnexion</span>
+              </button>
             </div>
           </div>
         </div>
-
-        <script>
-        // Système d'onglets
-        function showTab(tabId) {
-          // Cacher tous les onglets
-          document.querySelectorAll('.tab-content').forEach(function(tab) {
-            tab.classList.remove('active');
-          });
-          
-          // Désactiver tous les boutons
-          document.querySelectorAll('.tab-btn').forEach(function(btn) {
-            btn.classList.remove('active');
-          });
-          
-          // Afficher l'onglet sélectionné
-          document.getElementById(tabId).classList.add('active');
-          
-          // Activer le bouton correspondant
-          event.target.classList.add('active');
-        }
         
-        // Gestion des notifications
-        function markAsRead(button) {
-          const notification = button.closest('.notification-item');
-          notification.classList.add('read');
-          notification.style.opacity = '0.7';
-          notification.style.transform = 'translateX(0)';
-          
-          // Mettre à jour le compteur
-          updateNotificationCount(-1);
-          
-          // Feedback visuel
-          button.innerHTML = '<i class="fas fa-check"></i> Lu';
-          button.style.background = '#6c757d';
-        }
+        <!-- Statistiques rapides -->
+        <div class="main-content">
+          <div class="stats-container">
+            <div class="stat-card">
+              <div class="stat-label"><i class="fas fa-user"></i> <span class="stat-label-text translatable" data-fr="Étudiant" data-en="Student">Étudiant</span></div>
+              <div class="stat-number"><xsl:value-of select="dashboard/student/class"/></div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-label"><i class="fas fa-calendar-times"></i> <span class="stat-label-text translatable" data-fr="Absences" data-en="Absences">Absences</span></div>
+              <div class="stat-number"><xsl:value-of select="dashboard/statistics/absences"/></div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-label"><i class="fas fa-bell"></i> <span class="stat-label-text translatable" data-fr="Notifications" data-en="Notifications">Notifications</span></div>
+              <div class="stat-number"><xsl:value-of select="dashboard/statistics/notifications"/></div>
+            </div>
+          </div>
+        </div>
         
-        function markAllAsRead() {
-          const notifications = document.querySelectorAll('.notification-item:not(.read)');
-          notifications.forEach(function(notification, index) {
-            setTimeout(function() {
-              notification.classList.add('read');
-              notification.style.opacity = '0.7';
-              notification.style.transform = 'translateX(0)';
-            }, index * 100);
-          });
-          
-          // Mettre à jour le compteur
-          updateNotificationCount(-notifications.length);
-          
-          // Mettre à jour tous les boutons
-          document.querySelectorAll('.notification-actions .mark-read-btn').forEach(function(btn) {
-            btn.innerHTML = '<i class="fas fa-check"></i> Lu';
-            btn.style.background = '#6c757d';
-          });
-        }
+        <!-- Onglets -->
+        <div class="tabs-container">
+          <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('profile')">
+              <i class="fas fa-user-circle"></i> <span class="tab-text translatable" data-fr="Profil" data-en="Profile">Profil</span>
+            </button>
+            <button class="tab-btn" onclick="showTab('notifications')">
+              <i class="fas fa-bell"></i> <span class="tab-text translatable" data-fr="Notifications" data-en="Notifications">Notifications</span>
+              <xsl:if test="dashboard/statistics/unread_notifications > 0">
+                <span class="notifications-count"><xsl:value-of select="dashboard/statistics/unread_notifications"/></span>
+              </xsl:if>
+            </button>
+            <button class="tab-btn" onclick="showTab('absences')">
+              <i class="fas fa-clipboard-list"></i> <span class="tab-text translatable" data-fr="Absences" data-en="Absences">Absences</span>
+            </button>
+          </div>
+        </div>
         
-        function deleteNotification(button) {
-          const notification = button.closest('.notification-item');
-          notification.style.opacity = '0';
-          notification.style.transform = 'translateX(-100%)';
-          notification.style.height = '0';
-          notification.style.margin = '0';
-          notification.style.padding = '0';
-          notification.style.overflow = 'hidden';
-          notification.style.transition = 'all 0.5s ease';
-          
-          setTimeout(function() {
-            notification.remove();
-            updateNotificationCount(-1);
-          }, 500);
-        }
-        
-        function updateNotificationCount(change) {
-          const badge = document.querySelector('.tab-btn:nth-child(2) .badge');
-          if (badge) {
-            let count = parseInt(badge.textContent) + change;
-            if (count &lt;= 0) {
-              badge.remove();
-            } else {
-              badge.textContent = count;
-            }
-          }
-        }
-        
-        // Filtrage des absences
-        document.addEventListener('DOMContentLoaded', function() {
-          const searchInput = document.getElementById('searchAbsences');
-          
-          if (searchInput) {
-            searchInput.addEventListener('input', function() {
-              const filter = this.value.toLowerCase();
-              const rows = document.querySelectorAll('#absencesTable tbody tr');
-              
-              rows.forEach(function(row) {
-                const module = row.dataset.module.toLowerCase();
-                const text = row.textContent.toLowerCase();
+        <!-- Contenu des onglets -->
+        <div class="main-content">
+          <!-- Onglet Profil -->
+          <div id="profile" class="tab-content active">
+            <div class="card">
+              <h2><i class="fas fa-id-card"></i> <span class="card-title translatable" data-fr="Informations personnelles" data-en="Personal Information">Informations personnelles</span></h2>
+              <div class="profile-info">
+                <div class="info-item">
+                  <div class="info-label"><i class="fas fa-user"></i> <span class="info-label-text translatable" data-fr="Nom complet" data-en="Full Name">Nom complet</span></div>
+                  <div class="info-value"><xsl:value-of select="dashboard/student/name"/></div>
+                </div>
                 
-                if (filter === '' || text.includes(filter) || module.includes(filter)) {
-                  row.style.display = '';
-                } else {
-                  row.style.display = 'none';
-                }
-              });
-            });
-          }
+                <div class="info-item">
+                  <div class="info-label"><i class="fas fa-envelope"></i> <span class="info-label-text translatable" data-fr="Adresse email" data-en="Email Address">Adresse email</span></div>
+                  <div class="info-value"><xsl:value-of select="dashboard/student/email"/></div>
+                </div>
+                
+                <div class="info-item">
+                  <div class="info-label"><i class="fas fa-users"></i> <span class="info-label-text translatable" data-fr="Classe" data-en="Class">Classe</span></div>
+                  <div class="info-value"><xsl:value-of select="dashboard/student/class"/></div>
+                </div>
+                
+                <div class="info-item">
+                  <div class="info-label"><i class="fas fa-book"></i> <span class="info-label-text translatable" data-fr="Module" data-en="Module">Module</span></div>
+                  <div class="info-value"><xsl:value-of select="dashboard/student/module"/></div>
+                </div>
+                
+                <div class="info-item">
+                  <div class="info-label"><i class="fas fa-id-badge"></i> <span class="info-label-text translatable" data-fr="Identifiant" data-en="ID">Identifiant</span></div>
+                  <div class="info-value"><xsl:value-of select="dashboard/student/id"/></div>
+                </div>
+              </div>
+            </div>
+          </div>
           
-          // Initialiser le premier onglet
-          showTab('profile');
+          <!-- Onglet Notifications -->
+          <div id="notifications" class="tab-content">
+            <div class="card">
+              <h2><i class="fas fa-bell"></i> <span class="card-title translatable" data-fr="Mes notifications" data-en="My Notifications">Mes notifications</span></h2>
+              
+              <xsl:choose>
+                <xsl:when test="dashboard/statistics/notifications > 0">
+                  <xsl:for-each select="dashboard/notifications/notification">
+                    <div class="notification-item">
+                      <xsl:if test="read = 'false'">
+                        <xsl:attribute name="class">notification-item unread</xsl:attribute>
+                      </xsl:if>
+                      
+                      <div class="notification-header">
+                        <div class="notification-module">
+                          <i class="fas fa-book"></i> <xsl:value-of select="seance_module"/>
+                        </div>
+                        <div class="notification-date">
+                          <i class="far fa-clock"></i> <xsl:value-of select="created_at"/>
+                        </div>
+                      </div>
+                      
+                      <div class="notification-message">
+                        <xsl:value-of select="message"/>
+                      </div>
+                    </div>
+                  </xsl:for-each>
+                </xsl:when>
+                <xsl:otherwise>
+                  <div class="empty-state">
+                    <i class="far fa-bell-slash"></i>
+                    <p class="translatable" data-fr="Aucune notification pour le moment" data-en="No notifications at the moment">Aucune notification pour le moment</p>
+                  </div>
+                </xsl:otherwise>
+              </xsl:choose>
+            </div>
+          </div>
           
-          // Animation pour les notifications
-          const notifications = document.querySelectorAll('.notification-item');
-          notifications.forEach(function(notification, index) {
-            notification.style.animationDelay = (index * 0.1) + 's';
-            notification.style.animation = 'fadeIn 0.5s ease forwards';
-          });
-        });
+          <!-- Onglet Absences -->
+          <div id="absences" class="tab-content">
+            <div class="card">
+              <h2><i class="fas fa-calendar-times"></i> <span class="card-title translatable" data-fr="Historique des absences" data-en="Absence History">Historique des absences</span></h2>
+              
+              <xsl:choose>
+                <xsl:when test="dashboard/statistics/absences > 0">
+                  <table class="absences-table">
+                    <thead>
+                      <tr>
+                        <th><i class="far fa-calendar"></i> <span class="th-text translatable" data-fr="Date" data-en="Date">Date</span></th>
+                        <th><i class="far fa-clock"></i> <span class="th-text translatable" data-fr="Heure" data-en="Time">Heure</span></th>
+                        <th><i class="fas fa-book"></i> <span class="th-text translatable" data-fr="Module" data-en="Module">Module</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <xsl:for-each select="dashboard/absences/absence">
+                        <tr>
+                          <td><xsl:value-of select="date"/></td>
+                          <td><xsl:value-of select="hours"/></td>
+                          <td><strong><xsl:value-of select="module"/></strong></td>
+                        </tr>
+                      </xsl:for-each>
+                    </tbody>
+                  </table>
+                </xsl:when>
+                <xsl:otherwise>
+                  <div class="empty-state">
+                    <i class="far fa-check-circle" style="color: var(--success);"></i>
+                    <p class="translatable" data-fr="Félicitations ! Aucune absence enregistrée" data-en="Congratulations! No absences recorded">Félicitations ! Aucune absence enregistrée</p>
+                    <p style="font-size: 1rem; margin-top: 10px;" class="translatable" data-fr="Continuez votre assiduité" data-en="Keep up your attendance">Continuez votre assiduité</p>
+                  </div>
+                </xsl:otherwise>
+              </xsl:choose>
+            </div>
+          </div>
+        </div>
         
-        // Animation CSS
-        const style = document.createElement('style');
-        style.textContent = `
-          @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `;
-        document.head.appendChild(style);
-        </script>
+        <!-- Footer -->
+        <div class="footer">
+          <div class="footer-content">
+            <p><span class="translatable" data-fr="Système de Gestion des Absences" data-en="Absence Management System">Système de Gestion des Absences</span> - <xsl:value-of select="dashboard/student/class"/> - © 2024</p>
+            <p><span class="translatable" data-fr="Dernière mise à jour :" data-en="Last updated:">Dernière mise à jour :</span> <span id="last-update"><xsl:value-of select="dashboard/student/last_update"/></span></p>
+          </div>
+          <div class="footer-lang">
+            <button class="lang-btn" onclick="switchLanguage('fr')" title="Français">
+              <i class="fas fa-flag"></i> <span class="translatable" data-fr="FR" data-en="FR">FR</span>
+            </button>
+            <button class="lang-btn" onclick="switchLanguage('en')" title="English">
+              <i class="fas fa-flag-usa"></i> <span class="translatable" data-fr="EN" data-en="EN">EN</span>
+            </button>
+          </div>
+        </div>
+        
+        <script>
+  // Fonction pour changer de langue
+  function switchLanguage(lang) {
+    // Mettre à jour les boutons de langue
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelectorAll(`.lang-btn[onclick="switchLanguage('${lang}')"]`).forEach(btn => {
+      btn.classList.add('active');
+    });
+    
+    // Mettre à jour l'attribut lang de l'html
+    document.documentElement.lang = lang;
+    
+    // Mettre à jour le titre de la page
+    const title = document.querySelector('title');
+    if (title.dataset[lang]) {
+      title.textContent = title.dataset[lang];
+    }
+    
+    // Traduire tous les éléments avec la classe "translatable"
+    document.querySelectorAll('.translatable').forEach(element => {
+      const text = element.getAttribute(`data-${lang}`);
+      if (text) {
+        element.textContent = text;
+      }
+    });
+    
+    // Sauvegarder la préférence de langue
+    localStorage.setItem('student-dashboard-lang', lang);
+  }
+  
+  // Fonction pour changer d'onglet
+  function showTab(tabId) {
+    // Désactiver tous les onglets
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    
+    // Activer l'onglet sélectionné
+    document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
+  
+  // Fonction de déconnexion
+  function logout() {
+    const lang = localStorage.getItem('student-dashboard-lang') || 'fr';
+    const message = lang === 'en' ? 'Are you sure you want to logout?' : 'Êtes-vous sûr de vouloir vous déconnecter ?';
+    
+    if (confirm(message)) {
+      window.location.href = '../logout.php';
+    }
+  }
+  
+  // Initialisation
+  document.addEventListener('DOMContentLoaded', function() {
+    // Récupérer la langue sauvegardée ou utiliser le français par défaut
+    const savedLang = localStorage.getItem('student-dashboard-lang') || 'fr';
+    if (savedLang !== 'fr') {
+      switchLanguage(savedLang);
+    }
+    
+    // Mettre à jour la date de dernière mise à jour
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    const lastUpdateEl = document.getElementById('last-update');
+    if (lastUpdateEl) {
+      if (!lastUpdateEl.textContent || lastUpdateEl.textContent.trim() === '') {
+        lastUpdateEl.textContent = dateStr;
+      }
+    }
+  });
+</script>
       </body>
     </html>
   </xsl:template>

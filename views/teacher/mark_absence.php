@@ -1,27 +1,33 @@
 <?php
+// views/teacher/mark_absence.php
 session_start();
 
-require_once "../../observer/AbsenceManager.php";
-require_once "../../observer/StudentNotifier.php";
-require_once "../../models/XmlManager.php";
+// Déterminer le chemin de base ABSOLU
+$basePath = dirname(__DIR__, 2) . '/'; // Remonte 2 niveaux: views/teacher -> Gestion_Absence/
 
-// Multilang
-$langFile = "../../lang/" . ($_SESSION['lang'] ?? "fr") . ".php";
-if (file_exists($langFile)) {
-    $langs = include $langFile;
-} else {
-    $langs = [];
-}
+// Inclure les fichiers avec le bon chemin
+require_once $basePath . 'observer/AbsenceManager.php';
+require_once $basePath . 'observer/StudentNotifier.php';
+require_once $basePath . 'observer/DashboardNotifier.php';
+require_once $basePath . 'models/XmlManager.php';
 
 // Vérification rôle
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'teacher') {
-    header("Location: ../../login.php");
+    header("Location: " . $basePath . "login.php");
     exit;
 }
 
-$absenceManager = new AbsenceManager();
-$studentNotifier = new StudentNotifier();
+// Définir le chemin des données
+$dataPath = $basePath . 'data/';
+
+// Initialiser les composants
+$absenceManager = new AbsenceManager($dataPath);
+$studentNotifier = new StudentNotifier("StudentNotifier", $dataPath);
+$dashboardNotifier = new DashboardNotifier("DashboardNotifier", $dataPath);
+
+// Attacher les observateurs
 $absenceManager->attach($studentNotifier);
+$absenceManager->attach($dashboardNotifier);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $seanceId = $_POST['seance_id'] ?? '';
@@ -29,11 +35,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $teacherId = $_SESSION['user']['id'];
     $absentStudents = $_POST['absent_students'] ?? [];
     
-    // Charger le fichier des séances pour récupérer les infos
-    $seancesXml = new XmlManager("../../data/seances.xml");
-    $seances = $seancesXml->getAll();
+    // Valider les données
+    if (empty($seanceId) || empty($classId) || empty($absentStudents)) {
+        $_SESSION['error_message'] = "Données manquantes!";
+        header("Location: dashboard.php");
+        exit;
+    }
     
-    // Trouver la séance pour récupérer le module
+    // Charger les fichiers XML
+    $seancesXml = new XmlManager($dataPath . 'seances.xml');
+    $absencesXml = new XmlManager($dataPath . 'absences.xml');
+    
+    $seances = $seancesXml->getAll();
+    $absences = $absencesXml->getAll();
+    
+    // Trouver le module de la séance
     $module = "";
     foreach ($seances->seance as $seance) {
         if ((string)$seance['id'] === $seanceId) {
@@ -42,9 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     
-    // Charger le fichier des absences
-    $absencesXml = new XmlManager("../../data/absences.xml");
-    $absences = $absencesXml->getAll();
+    if (empty($module)) {
+        $_SESSION['error_message'] = "Séance non trouvée!";
+        header("Location: dashboard.php");
+        exit;
+    }
+    
+    $results = [];
+    $successCount = 0;
     
     foreach ($absentStudents as $studentId) {
         // Vérifier si l'absence existe déjà
@@ -58,31 +79,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        if (!$alreadyExists) {
-            // Message multilingue
-            $message = sprintf(
-                $langs["notifications"]["absence"] ?? "Absence enregistrée pour la séance %s",
-                $seanceId
+        if ($alreadyExists) {
+            $results[] = [
+                'student_id' => $studentId,
+                'success' => false,
+                'error' => 'Absence déjà enregistrée'
+            ];
+            continue;
+        }
+        
+        // Ajouter l'absence au XML
+        $absence = $absences->addChild("absence");
+        $absence->addAttribute("id", uniqid("a"));
+        $absence->addChild("studentId", $studentId);
+        $absence->addChild("seanceId", $seanceId);
+        $absence->addChild("teacherId", $teacherId);
+        $absence->addChild("module", $module);
+        $absence->addChild("date", date("Y-m-d"));
+        $absence->addChild("hours", date("H:i"));
+        $absence->addChild("status", "Absent");
+        $absence->addChild("notified", "true");
+        $absence->addChild("notification_date", date("Y-m-d H:i:s"));
+        
+        // NOTIFIER via l'AbsenceManager
+        try {
+            $notificationResult = $absenceManager->markAbsence(
+                $studentId, 
+                $seanceId, 
+                $teacherId, 
+                $module, 
+                date("Y-m-d H:i:s")
             );
-
-            // 1. Marquer l'absence dans le système Observer
-            $absenceManager->markAbsence($studentId, $seanceId);
             
-            // 2. Ajouter l'absence au XML avec TOUTES les informations
-            $absence = $absences->addChild("absence");
-            $absence->addAttribute("id", uniqid("a"));
-            $absence->addChild("studentId", $studentId);
-            $absence->addChild("seanceId", $seanceId);
-            $absence->addChild("teacherId", $teacherId);
-            $absence->addChild("module", $module); // IMPORTANT: Ajouter le module
-            $absence->addChild("date", date("Y-m-d"));
-            $absence->addChild("hours", date("H:i"));
-            $absence->addChild("status", "Absent");
+            $results[] = [
+                'student_id' => $studentId,
+                'success' => true,
+                'notifications' => $notificationResult
+            ];
+            
+            $successCount++;
+            
+        } catch (Exception $e) {
+            $results[] = [
+                'student_id' => $studentId,
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
         }
     }
     
     // Sauvegarder le fichier XML
     $absencesXml->save();
+    
+    // S'assurer que le fichier de notifications existe
+    $notifFile = $dataPath . 'student_notifications.xml';
+    if (!file_exists($notifFile)) {
+        $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><notifications></notifications>');
+        $xml->asXML($notifFile);
+    }
+    
+    // Stocker les résultats
+    $_SESSION['absence_results'] = $results;
+    $_SESSION['success_message'] = "$successCount absence(s) enregistrée(s) avec succès!";
 }
 
 header("Location: dashboard.php");
