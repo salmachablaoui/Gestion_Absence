@@ -67,12 +67,18 @@ if (file_exists($notificationsFile)) {
     foreach ($notificationsXml->notification as $notification) {
         if ((string)$notification->student_id === $studentId) {
             $isRead = ((string)($notification->read ?? 'false')) === 'true';
+            
+            // CORRECTION CRITIQUE ICI :
+            // Ne JAMAIS utiliser $studentModule comme fallback pour seance_module
+            // Ces deux choses sont différentes !
+            $seanceModule = (string)($notification->seance_module ?? '');
+            
             $notifications[] = [
                 'id' => (string)($notification->id ?? 'NOTIF' . uniqid()),
                 'student_id' => (string)$notification->student_id,
                 'student_name' => (string)($notification->student_name ?? $studentName),
                 'seance_id' => (string)($notification->seance_id ?? ''),
-                'seance_module' => (string)($notification->seance_module ?? $studentModule),
+                'seance_module' => $seanceModule, // Correction : pas de fallback avec studentModule
                 'seance_datetime' => (string)($notification->seance_datetime ?? ''),
                 'message' => (string)($notification->message ?? 'Notification d\'absence'),
                 'created_at' => (string)($notification->created_at ?? $notification->date ?? date('Y-m-d H:i:s')),
@@ -89,7 +95,7 @@ if (file_exists($notificationsFile)) {
     }
 }
 
-// Créer le XML avec toutes les données
+// Créer le XML pour le XSLT
 $xmlContent = '<?xml version="1.0" encoding="UTF-8"?>
 <dashboard>
     <student>
@@ -129,13 +135,16 @@ if ($absencesCount > 0) {
 if ($notificationsCount > 0) {
     $xmlContent .= '<notifications>';
     foreach ($notifications as $notification) {
+        // CORRECTION : Ne pas utiliser $studentModule pour seance_module
+        $displayModule = $notification['seance_module'] ?: 'Module non spécifié';
+        
         $xmlContent .= '
         <notification>
             <id>' . htmlspecialchars($notification['id']) . '</id>
             <student_id>' . htmlspecialchars($notification['student_id']) . '</student_id>
             <student_name>' . htmlspecialchars($notification['student_name']) . '</student_name>
             <seance_id>' . htmlspecialchars($notification['seance_id']) . '</seance_id>
-            <seance_module>' . htmlspecialchars($notification['seance_module']) . '</seance_module>
+            <seance_module>' . htmlspecialchars($displayModule) . '</seance_module>
             <seance_datetime>' . htmlspecialchars($notification['seance_datetime']) . '</seance_datetime>
             <message>' . htmlspecialchars($notification['message']) . '</message>
             <date>' . htmlspecialchars($notification['date']) . '</date>
@@ -154,6 +163,13 @@ $xmlContent .= '
 
 // Charger le XSLT
 $xslPath = $basePath . "/xslt/dashboard_student.xsl";
+
+// Pour debug: afficher le XML brut
+if (isset($_GET['debug']) && $_GET['debug'] == 'xml') {
+    header('Content-Type: text/xml; charset=utf-8');
+    echo $xmlContent;
+    exit;
+}
 
 // Si le XSLT n'existe pas, afficher le XML brut pour débogage
 if (!file_exists($xslPath)) {

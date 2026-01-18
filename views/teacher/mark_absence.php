@@ -5,7 +5,7 @@ session_start();
 // Déterminer le chemin de base ABSOLU
 $basePath = dirname(__DIR__, 2) . '/'; // Remonte 2 niveaux: views/teacher -> Gestion_Absence/
 
-// Inclure les fichiers avec le bon chemin
+// Inclure les fichiers nécessaires
 require_once $basePath . 'observer/AbsenceManager.php';
 require_once $basePath . 'observer/StudentNotifier.php';
 require_once $basePath . 'observer/DashboardNotifier.php';
@@ -35,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $teacherId = $_SESSION['user']['id'];
     $absentStudents = $_POST['absent_students'] ?? [];
     
-    // Valider les données
     if (empty($seanceId) || empty($classId) || empty($absentStudents)) {
         $_SESSION['error_message'] = "Données manquantes!";
         header("Location: dashboard.php");
@@ -49,11 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $seances = $seancesXml->getAll();
     $absences = $absencesXml->getAll();
     
-    // Trouver le module de la séance
-    $module = "";
+    // Trouver le module réel de la séance
+    $module = '';
     foreach ($seances->seance as $seance) {
         if ((string)$seance['id'] === $seanceId) {
-            $module = (string)$seance->module;
+            $module = (string)$seance->module ?? 'Module par défaut';
             break;
         }
     }
@@ -88,26 +87,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             continue;
         }
         
-        // Ajouter l'absence au XML
+        // Ajouter l'absence au XML avec le module réel
         $absence = $absences->addChild("absence");
         $absence->addAttribute("id", uniqid("a"));
         $absence->addChild("studentId", $studentId);
         $absence->addChild("seanceId", $seanceId);
         $absence->addChild("teacherId", $teacherId);
-        $absence->addChild("module", $module);
+        $absence->addChild("module", $module); // ← module réel
         $absence->addChild("date", date("Y-m-d"));
         $absence->addChild("hours", date("H:i"));
         $absence->addChild("status", "Absent");
         $absence->addChild("notified", "true");
         $absence->addChild("notification_date", date("Y-m-d H:i:s"));
         
-        // NOTIFIER via l'AbsenceManager
+        // NOTIFIER via l'AbsenceManager et transmettre le module réel
         try {
             $notificationResult = $absenceManager->markAbsence(
                 $studentId, 
                 $seanceId, 
                 $teacherId, 
-                $module, 
+                $module, // ← module réel
                 date("Y-m-d H:i:s")
             );
             
@@ -131,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sauvegarder le fichier XML
     $absencesXml->save();
     
-    // S'assurer que le fichier de notifications existe
+    // Créer le fichier notifications si inexistant
     $notifFile = $dataPath . 'student_notifications.xml';
     if (!file_exists($notifFile)) {
         $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><notifications></notifications>');

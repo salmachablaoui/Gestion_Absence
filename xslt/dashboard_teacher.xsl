@@ -18,6 +18,8 @@
   <xsl:variable name="classes" select="document($classesXmlPath)/classes"/>
   <xsl:variable name="absences" select="document($absencesXmlPath)/absences"/>
   <xsl:variable name="seances" select="document($seancesXmlPath)/seances"/>
+<xsl:variable name="teacherModule" select="document($teachersXmlPath)/teachers/teacher[@id=$teacherId]/module"/>
+
 
   <xsl:template match="/">
     <html>
@@ -34,467 +36,9 @@
         <link rel="stylesheet" href="../../assets/css/style.css"/>
         <!-- Inclure Font Awesome pour les icônes -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-        <style>
-          /* Variables CSS pour les thèmes - Bleu Marine */
-          :root {
-            --primary-color: #0e134a; /* Bleu marine */
-            --secondary-color: #1e2767; /* Bleu marine plus clair */
-            --accent-color: #e74c3c;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --light-bg: #f8f9fa;
-            --dark-text: #0c103a; /* Bleu marine pour texte */
-            --light-text: #4c5aa9; /* Bleu marine clair */
-            --border-color: #c5cae9; /* Bleu marine très clair */
-            --shadow: 0 2px 10px rgba(26, 35, 126, 0.1);
-            --transition: all 0.3s ease;
-          }
-          
-          body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
-            color: var(--dark-text);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-          }
-          
-          .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px;
-          }
-          
-          /* En-tête */
-          .header {
-            margin-bottom: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, var(--primary-color), #283593);
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(26, 35, 126, 0.2);
-            color: white;
-          }
-          
-          .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          
-          .header-content h1 {
-            margin: 0;
-            font-size: 28px;
-            color: white;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-          }
-          
-          .header-content h1 i {
-            font-size: 24px;
-          }
-          
-          .header-content > div > p {
-            margin: 8px 0 0 0;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 16px;
-          }
-          
-          .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-          }
-          
-          .language-switcher {
-            display: flex;
-            gap: 10px;
-          }
-          
-          .lang-btn {
-            padding: 8px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            color: white;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-          }
-          
-          .lang-btn:hover {
-            border-color: white;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-          }
-          
-          .lang-btn.active {
-            background: white;
-            color: var(--primary-color);
-            border-color: white;
-            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
-          }
-          
-          .logout-btn {
-            padding: 10px 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            color: white;
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-          
-          .logout-btn:hover {
-            border-color: var(--accent-color);
-            background: rgba(231, 76, 60, 0.2);
-            transform: translateY(-2px);
-          }
-          
-          /* Le reste du CSS reste le même... */
-          
-          /* Actions principales */
-          .main-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-          }
-          
-          .action-buttons {
-            display: flex;
-            gap: 15px;
-          }
-          
-          .btn {
-            padding: 14px 28px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            font-size: 15px;
-          }
-          
-          .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            box-shadow: 0 4px 15px rgba(26, 35, 126, 0.3);
-          }
-          
-          .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(26, 35, 126, 0.4);
-          }
-          
-          .btn-danger {
-            background: linear-gradient(135deg, var(--accent-color), #c0392b);
-            color: white;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-          }
-          
-          .btn-danger:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
-          }
-          
-          /* Tableau des séances */
-          .sessions-section {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-            border: 1px solid var(--border-color);
-          }
-          
-          .section-header {
-            padding: 25px;
-            background: linear-gradient(135deg, #f8f9fa, #e8eaf6);
-            border-bottom: 2px solid var(--border-color);
-          }
-          
-          .section-header h2 {
-            margin: 0;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 20px;
-            font-weight: 600;
-          }
-          
-          table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-          }
-          
-          thead {
-            background: linear-gradient(135deg, #e8eaf6, #d1d9ff);
-          }
-          
-          th {
-            padding: 18px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--primary-color);
-            border-bottom: 3px solid var(--border-color);
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          
-          td {
-            padding: 18px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--dark-text);
-            font-size: 15px;
-          }
-          
-          tbody tr {
-            transition: var(--transition);
-          }
-          
-          tbody tr:hover {
-            background-color: #f5f7ff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(26, 35, 126, 0.1);
-          }
-          
-          /* Badges */
-          .class-badge {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            display: inline-block;
-            box-shadow: 0 2px 8px rgba(26, 35, 126, 0.2);
-          }
-          
-          .module-badge {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            color: var(--primary-color);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            display: inline-block;
-            border: 1px solid #bbdefb;
-          }
-          
-          /* Modal */
-          .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-          }
-          
-          .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 35px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.2);
-            animation: modalFadeIn 0.3s ease;
-            border: 2px solid var(--border-color);
-          }
-          
-          @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          
-          .close {
-            float: right;
-            font-size: 28px;
-            cursor: pointer;
-            color: var(--light-text);
-            transition: var(--transition);
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-          }
-          
-          .close:hover {
-            color: var(--accent-color);
-            background: #f5f5f5;
-          }
-          
-          /* Formulaires */
-          .form-group {
-            margin: 25px 0;
-          }
-          
-          label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: var(--primary-color);
-            font-size: 15px;
-          }
-          
-          select, input[type="datetime-local"] {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 15px;
-            transition: var(--transition);
-            color: var(--dark-text);
-          }
-          
-          select:focus, input[type="datetime-local"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
-          }
-          
-          .form-buttons {
-            margin-top: 35px;
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-          }
-          
-          /* Absences */
-          .absence-table-container {
-            background: linear-gradient(135deg, #f8f9fa, #e8eaf6);
-            border-radius: 12px;
-            padding: 25px;
-            margin: 20px 0;
-            border: 2px solid var(--border-color);
-          }
-          
-          .absence-table-container table {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-          }
-          
-          .absence-checkbox {
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            accent-color: var(--primary-color);
-          }
-          
-          .absent-checked {
-            background-color: #fff3cd !important;
-          }
-          
-          .status-badge {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            display: inline-block;
-          }
-          
-          .status-present {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            color: #155724;
-            border: 1px solid #c3e6cb;
-          }
-          
-          .status-absent {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-          }
-          
-          /* Messages */
-          .warning-message {
-            background: #fff3cd;
-            border-left: 5px solid var(--warning-color);
-            padding: 25px;
-            border-radius: 10px;
-            margin: 25px;
-          }
-          
-          .no-data {
-            text-align: center;
-            padding: 60px;
-            color: var(--light-text);
-          }
-          
-          .no-data i {
-            font-size: 60px;
-            margin-bottom: 20px;
-            color: var(--border-color);
-          }
-          
-          /* Responsive */
-          @media (max-width: 768px) {
-            .container {
-              padding: 15px;
-            }
-            
-            .header {
-              padding: 20px;
-            }
-            
-            .header-content {
-              flex-direction: column;
-              gap: 20px;
-              align-items: flex-start;
-            }
-            
-            .header-actions {
-              width: 100%;
-              justify-content: space-between;
-            }
-            
-            .main-actions {
-              flex-direction: column;
-              gap: 20px;
-              align-items: stretch;
-            }
-            
-            .action-buttons {
-              flex-direction: column;
-            }
-            
-            table {
-              display: block;
-              overflow-x: auto;
-            }
-          }
-        </style>
+        <script src="../../assets/js/dashboard_teacher.js"></script>
+
+        <link rel="stylesheet" href="../../assets/css/dashboard_teacher.css"/>
       </head>
       <body>
       
@@ -647,10 +191,10 @@
                           </xsl:choose>
                         </td>
                         <td>
-                          <span class="module-badge">
-                            <xsl:value-of select="module"/>
-                          </span>
-                        </td>
+  <span class="module-badge">
+    <xsl:value-of select="$teacherModule"/>
+  </span>
+</td>
                         <td>
                           <xsl:choose>
                             <xsl:when test="datetime and datetime != ''">
@@ -832,86 +376,88 @@
 
           <!-- Modal création séance -->
           <div class="modal" id="addSeanceModal">
-            <div class="modal-content">
-              <span class="close" id="closeAddSeance">✕</span>
-              <h2>
-                <i class="fas fa-plus-circle"></i>
-                <span class="translatable" data-fr="Créer une séance" data-en="Create Session">
-                  Créer une séance
-                </span>
-              </h2>
-              
-              <form method="post" action="create_seance.php" id="createSeanceForm">
-                <input type="hidden" name="teacher_id" value="{$teacherId}"/>
-                <input type="hidden" name="lang" value="{$lang}"/>
-                
-                <div class="form-group">
-                  <label>
-                    <span class="translatable" data-fr="Sélectionnez une classe" data-en="Select a class">
-                      Sélectionnez une classe
-                    </span>
-                    :
-                  </label>
-                  <select name="class_id" id="classSelect" required="required">
-                    <option value="">
-                      <span class="translatable" data-fr="-- Choisir une classe --" data-en="-- Choose a class --">
-                        -- Choisir une classe --
-                      </span>
-                    </option>
-                    <xsl:for-each select="$classes/class">
-                      <xsl:sort select="name"/>
-                      <option value="{@id}">
-                        <xsl:value-of select="name"/>
-                      </option>
-                    </xsl:for-each>
-                  </select>
-                </div>
-                
-                <div class="form-group">
-                  <label>
-                    <span class="translatable" data-fr="Sélectionnez un module" data-en="Select a module">
-                      Sélectionnez un module
-                    </span>
-                    :
-                  </label>
-                  <select name="module" id="moduleSelect" required="required" disabled="disabled">
-                    <option value="">
-                      <span class="translatable" data-fr="-- Sélectionnez d'abord une classe --" 
-                            data-en="-- Select a class first --">
-                        -- Sélectionnez d'abord une classe --
-                      </span>
-                    </option>
-                  </select>
-                  <small id="moduleHelp" style="display: block; margin-top: 8px; color: var(--light-text); font-size: 13px;"></small>
-                </div>
-                
-                <div class="form-group">
-                  <label>
-                    <span class="translatable" data-fr="Date &amp; Heure" data-en="Date &amp; Time">
-                      Date &amp; Heure
-                    </span>
-                    :
-                  </label>
-                  <input type="datetime-local" name="datetime" required="required"/>
-                </div>
+  <div class="modal-content">
+    <span class="close" id="closeAddSeance">✕</span>
+    <h2>
+      <i class="fas fa-plus-circle"></i>
+      <span class="translatable" data-fr="Créer une séance" data-en="Create Session">
+        Créer une séance
+      </span>
+    </h2>
 
-                <div class="form-buttons">
-                  <button type="submit" class="btn btn-primary" id="submitBtn">
-                    <i class="fas fa-plus"></i>
-                    <span class="translatable" data-fr="Créer" data-en="Create">
-                      Créer
-                    </span>
-                  </button>
-                  <button type="button" class="btn btn-danger" id="cancelAddSeance">
-                    <i class="fas fa-times"></i>
-                    <span class="translatable" data-fr="Annuler" data-en="Cancel">
-                      Annuler
-                    </span>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+    <form method="post" action="create_seance.php" id="createSeanceForm">
+      <!-- Teacher ID & Lang -->
+      <input type="hidden" name="teacher_id" value="{$teacherId}"/>
+      <input type="hidden" name="lang" value="{$lang}"/>
+
+      <!-- Classe -->
+      <div class="form-group">
+        <label>
+          <span class="translatable" data-fr="Sélectionnez une classe" data-en="Select a class">
+            Sélectionnez une classe
+          </span> :
+        </label>
+        <select name="class_id" id="classSelect" required="required">
+          <option value="">
+            <span class="translatable" data-fr="-- Choisir une classe --" data-en="-- Choose a class --">
+              -- Choisir une classe --
+            </span>
+          </option>
+          <xsl:for-each select="$classes/class">
+            <xsl:sort select="name"/>
+            <option value="{@id}">
+              <xsl:value-of select="name"/>
+            </option>
+          </xsl:for-each>
+        </select>
+      </div>
+
+      <!-- Module affiché mais non modifiable -->
+<div class="form-group">
+  <label>
+    <span class="translatable" data-fr="Module affecté" data-en="Assigned Module">
+      Module affecté
+    </span> :
+  </label>
+
+  <!-- Champ caché envoyé au PHP -->
+  <input type="hidden" name="module" value="{$teacherModule}"/>
+
+  <!-- Affichage à l'écran -->
+  <span class="module-badge">
+    <xsl:value-of select="$teacherModule"/>
+  </span>
+</div>
+
+      <!-- Date & Heure -->
+      <div class="form-group">
+        <label>
+          <span class="translatable" data-fr="Date &amp; Heure" data-en="Date &amp; Time">
+            Date &amp; Heure
+          </span> :
+        </label>
+        <input type="datetime-local" name="datetime" required="required"/>
+      </div>
+
+      <!-- Boutons -->
+      <div class="form-buttons">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <i class="fas fa-plus"></i>
+          <span class="translatable" data-fr="Créer" data-en="Create">
+            Créer
+          </span>
+        </button>
+        <button type="button" class="btn btn-danger" id="cancelAddSeance">
+          <i class="fas fa-times"></i>
+          <span class="translatable" data-fr="Annuler" data-en="Cancel">
+            Annuler
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
           
         </div>
         

@@ -65,11 +65,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $user = $auth->login($email, $password);
 
     if ($user !== false) {
+
+        // Si c'est un enseignant, récupérer le module depuis teachers.xml
+        $teacherModule = '';
+        $teacherClass = '';
+        $teacherName = '';
+
+        if ($user["role"] === "teacher") {
+            $teachersXml = new DOMDocument();
+            $teachersXml->load(__DIR__ . "/data/teachers.xml"); // chemin relatif à adapter si besoin
+            $xpath = new DOMXPath($teachersXml);
+            $teacherNode = $xpath->query("/teachers/teacher[@id='{$user['id']}']")->item(0);
+
+            if ($teacherNode) {
+                $teacherModule = $teacherNode->getElementsByTagName("module")[0]->nodeValue ?? 'Module par défaut';
+                $teacherClass  = $teacherNode->getElementsByTagName("class")[0]->nodeValue ?? '';
+                $teacherName   = $teacherNode->getElementsByTagName("name")[0]->nodeValue ?? '';
+            } else {
+                $teacherModule = 'Module par défaut';
+            }
+        }
+
         // Stocker l'utilisateur en session
         $_SESSION["user"] = [
             "id" => (string)$user["id"],
             "role" => (string)$user["role"],
-            "email" => (string)$user["email"]
+            "email" => (string)$user["email"],
+            "name" => (string)$teacherName,
+            "module" => (string)$teacherModule,
+            "class" => (string)$teacherClass
         ];
 
         // Redirection selon le rôle
@@ -88,11 +112,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             default:
                 $error = $t['error_unknown_role'];
-                // Ne pas rediriger en cas d'erreur
                 break;
         }
-        
-        // Sortir seulement si une redirection a été effectuée
+
         if ($error === "") {
             exit;
         }
@@ -100,6 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = $t['error_invalid_credentials'];
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $lang; ?>">

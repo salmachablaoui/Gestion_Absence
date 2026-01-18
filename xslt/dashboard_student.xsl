@@ -588,10 +588,7 @@
                   <div class="info-value"><xsl:value-of select="dashboard/student/class"/></div>
                 </div>
                 
-                <div class="info-item">
-                  <div class="info-label"><i class="fas fa-book"></i> <span class="info-label-text translatable" data-fr="Module" data-en="Module">Module</span></div>
-                  <div class="info-value"><xsl:value-of select="dashboard/student/module"/></div>
-                </div>
+                
                 
                 <div class="info-item">
                   <div class="info-label"><i class="fas fa-id-badge"></i> <span class="info-label-text translatable" data-fr="Identifiant" data-en="ID">Identifiant</span></div>
